@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sale } from '../../types';
 import { Printer, Download, Share2, X, CheckCircle2, ShoppingBag } from 'lucide-react';
+import { APP_ASSETS } from '../../assets/images';
 
 interface ReceiptModalProps {
   sale: Sale;
@@ -63,11 +64,19 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ sale, onClose }) => 
         {/* Printable Thermal Receipt (80mm styling) */}
         <div id="printable-receipt" className="py-4 text-xs font-mono text-stone-800 space-y-3">
           {/* Business Header */}
-          <div className="text-center space-y-0.5">
+          <div className="text-center space-y-1">
+            <div className="w-10 h-10 mx-auto rounded-full overflow-hidden border border-stone-300">
+              <img
+                src={APP_ASSETS.logo}
+                alt="Logo Tisoffindo"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            </div>
             <p className="font-bold text-sm text-stone-900 uppercase">TISOFFINDO</p>
-            <p className="text-[11px] text-stone-600">Sentra Kerupuk Rambak Kulit Sapi</p>
-            <p className="text-[10px] text-stone-500">Bangsal, Mojokerto, Jawa Timur</p>
-            <p className="text-[10px] text-stone-500">Telp: 0812-3456-7890</p>
+            <p className="text-[11px] text-stone-600">Pabrik Kerupuk Rambak Sapi Boyolali</p>
+            <p className="text-[10px] text-stone-500">Kliwonan, Jeron, Nogosari, Boyolali, Jawa Tengah</p>
+            <p className="text-[10px] text-stone-500">Telp/WA: 0857-2811-1147 (Buka 24 Jam)</p>
           </div>
 
           <div className="border-t border-dashed border-stone-300 pt-2 space-y-1 text-[11px]">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ShoppingBag, LogIn, Menu, X, PhoneCall, ShieldCheck, UserCheck } from 'lucide-react';
+import { APP_ASSETS } from '../../assets/images';
 
 export const PublicNavbar: React.FC = () => {
   const { setCurrentView, currentUser, logout, quickLogin, companyProfile } = useApp();
@@ -26,8 +27,13 @@ export const PublicNavbar: React.FC = () => {
             }}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 flex items-center justify-center text-white shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform duration-300">
-              <ShoppingBag className="w-6 h-6" />
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform duration-300 border border-amber-200/80 bg-white shrink-0">
+              <img
+                src={APP_ASSETS.logo}
+                alt="Logo Tisoffindo"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
             </div>
             <div>
               <div className="flex items-center gap-1.5">

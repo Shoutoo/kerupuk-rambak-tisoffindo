@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ShoppingBag, Lock, Mail, ArrowLeft, Shield, UserCheck, KeyRound, AlertCircle, Info } from 'lucide-react';
+import { APP_ASSETS } from '../../assets/images';
 
 export const LoginView: React.FC = () => {
   const { login, quickLogin, setCurrentView, users } = useApp();
@@ -53,8 +54,13 @@ export const LoginView: React.FC = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Brand Header */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 text-white shadow-lg shadow-amber-500/25 mb-4">
-            <ShoppingBag className="w-7 h-7" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden bg-white border-2 border-amber-300 shadow-lg shadow-amber-500/20 mb-4 p-1">
+            <img
+              src={APP_ASSETS.logo}
+              alt="Logo Tisoffindo"
+              className="w-full h-full object-cover rounded-xl"
+              referrerPolicy="no-referrer"
+            />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight">
             Sistem Internal Tisoffindo

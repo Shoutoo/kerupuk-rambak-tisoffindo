@@ -17,8 +17,13 @@ import {
   Save,
   Eye,
   RefreshCw,
+  Award,
+  PackageCheck,
+  Sparkles,
+  Copy,
 } from 'lucide-react';
 import { GalleryItem, Testimonial } from '../../types';
+import { APP_ASSETS } from '../../assets/images';
 
 export const CompanyProfileSettingsView: React.FC = () => {
   const {
@@ -35,7 +40,8 @@ export const CompanyProfileSettingsView: React.FC = () => {
     setCurrentView,
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'gallery' | 'testimonials'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'gallery' | 'testimonials' | 'brand_assets'>('profile');
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Form states for Company Profile
@@ -188,6 +194,18 @@ export const CompanyProfileSettingsView: React.FC = () => {
         >
           <MessageSquare className="w-4 h-4 text-amber-600" />
           <span>Ulasan & Testimoni ({testimonials?.length || 0})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('brand_assets')}
+          className={`px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl transition-all flex items-center gap-2 whitespace-nowrap ${
+            activeTab === 'brand_assets'
+              ? 'bg-white border-t-2 border-amber-600 text-stone-900 border-x border-stone-200 -mb-px'
+              : 'text-stone-500 hover:text-stone-800 hover:bg-stone-100'
+          }`}
+        >
+          <Award className="w-4 h-4 text-amber-600" />
+          <span>Logo & Aset Kemasan Asli</span>
         </button>
       </div>
 
@@ -702,6 +720,206 @@ export const CompanyProfileSettingsView: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Tab 4: Brand Assets & Authentic Packaging */}
+      {activeTab === 'brand_assets' && (
+        <div className="space-y-6">
+          {/* Logo Showcase Banner */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-xs">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden bg-white border-2 border-amber-200 shadow-md shrink-0 p-1.5">
+                <img
+                  src={APP_ASSETS.logo}
+                  alt="Logo Resmi Pabrik Kerupuk Rambak Tisoffindo"
+                  className="w-full h-full object-cover rounded-xl"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="flex-1 text-center md:text-left space-y-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-900 text-xs font-semibold border border-blue-200">
+                  <Award className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Logo Resmi Brand Tisoffindo</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold font-serif text-stone-900">
+                  Lambang & Identitas Visual Pabrik Krupuk Tisoffindo Boyolali
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed max-w-2xl">
+                  Dirancang eksklusif dengan elemen lambang cap bulat warisan kuliner Nusantara berwarna biru royal elegan, bingkai emas keemasan, dan tipografi heritage yang mencerminkan mutu kerupuk rambak sapi premium sejak turun-temurun.
+                </p>
+                <div className="flex flex-wrap items-center gap-2 pt-2 justify-center md:justify-start">
+                  <a
+                    href={APP_ASSETS.logo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Buka File Logo</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(APP_ASSETS.logo);
+                      setCopiedKey('logo');
+                      setTimeout(() => setCopiedKey(null), 2500);
+                    }}
+                    className="px-4 py-2 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-50 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  >
+                    <Copy className="w-3.5 h-3.5 text-stone-500" />
+                    <span>{copiedKey === 'logo' ? 'URL Tersalin!' : 'Salin URL Logo'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Authentic Real Packaging Suite */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-xs space-y-6">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold tracking-wide uppercase mb-2">
+                <PackageCheck className="w-3.5 h-3.5 text-amber-700" />
+                Aset Kemasan Riil Terintegrasi
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold font-serif text-stone-900">
+                Dokumentasi Kemasan Asli & Proses Produksi Tisoffindo
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-600">
+                Aset-aset foto ini disesuaikan dengan kemasan riil rambak Tisoffindo (kemasan plastik bening tebal berstempel biru khas) dan ditingkatkan kualitas fotografinya untuk tampilan komersial prima di web publik.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Asset 1: Kemasan Asli Satuan */}
+              <div className="border border-stone-200 rounded-xl overflow-hidden bg-stone-50 flex flex-col group">
+                <div className="aspect-4/3 overflow-hidden bg-stone-200">
+                  <img
+                    src={APP_ASSETS.rambakPack}
+                    alt="Kemasan Asli Tisoffindo"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="p-3.5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full inline-block mb-1.5">
+                      Kemasan Satuan
+                    </span>
+                    <h4 className="font-bold text-stone-900 text-xs sm:text-sm">Kemasan Asli Cap Tisoffindo</h4>
+                    <p className="text-[11px] text-stone-500 mt-1">Plastik kedap udara dengan label biru khas Tisoffindo.</p>
+                  </div>
+                  <div className="pt-3 border-t border-stone-200/80 mt-2 flex justify-between items-center text-[11px]">
+                    <span className="text-emerald-700 font-semibold">Tampil di Hero & Produk</span>
+                    <a
+                      href={APP_ASSETS.rambakPack}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-amber-600 hover:text-amber-800 font-bold"
+                    >
+                      Buka
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Asset 2: Tumpukan Kemasan Grosir */}
+              <div className="border border-stone-200 rounded-xl overflow-hidden bg-stone-50 flex flex-col group">
+                <div className="aspect-4/3 overflow-hidden bg-stone-200">
+                  <img
+                    src={APP_ASSETS.rambakStacks}
+                    alt="Tumpukan Kemasan Grosir Tisoffindo"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="p-3.5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full inline-block mb-1.5">
+                      Partai & Grosir
+                    </span>
+                    <h4 className="font-bold text-stone-900 text-xs sm:text-sm">Tumpukan Stok Grosir</h4>
+                    <p className="text-[11px] text-stone-500 mt-1">Stok kemasan siap kirim untuk mitra warung, toko & oleh-oleh.</p>
+                  </div>
+                  <div className="pt-3 border-t border-stone-200/80 mt-2 flex justify-between items-center text-[11px]">
+                    <span className="text-emerald-700 font-semibold">Tampil di Grosir & Tentang</span>
+                    <a
+                      href={APP_ASSETS.rambakStacks}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-amber-600 hover:text-amber-800 font-bold"
+                    >
+                      Buka
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Asset 3: Penjemuran Krecek Mentah */}
+              <div className="border border-stone-200 rounded-xl overflow-hidden bg-stone-50 flex flex-col group">
+                <div className="aspect-4/3 overflow-hidden bg-stone-200">
+                  <img
+                    src={APP_ASSETS.krecekMentah}
+                    alt="Penjemuran Krecek Mentah Boyolali"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="p-3.5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full inline-block mb-1.5">
+                      Bahan Mentah
+                    </span>
+                    <h4 className="font-bold text-stone-900 text-xs sm:text-sm">Penjemuran Alami Boyolali</h4>
+                    <p className="text-[11px] text-stone-500 mt-1">Proses jemur alami krecek kulit sapi murni di Jeron Boyolali.</p>
+                  </div>
+                  <div className="pt-3 border-t border-stone-200/80 mt-2 flex justify-between items-center text-[11px]">
+                    <span className="text-emerald-700 font-semibold">Tampil di Krecek & Galeri</span>
+                    <a
+                      href={APP_ASSETS.krecekMentah}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-amber-600 hover:text-amber-800 font-bold"
+                    >
+                      Buka
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Asset 4: Rambak Mekar Renyah */}
+              <div className="border border-stone-200 rounded-xl overflow-hidden bg-stone-50 flex flex-col group">
+                <div className="aspect-4/3 overflow-hidden bg-stone-200">
+                  <img
+                    src={APP_ASSETS.rambakCrisp}
+                    alt="Kerupuk Rambak Mekar Renyah Tisoffindo"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="p-3.5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full inline-block mb-1.5">
+                      Siap Santap
+                    </span>
+                    <h4 className="font-bold text-stone-900 text-xs sm:text-sm">Rambak Mekar Sempurna</h4>
+                    <p className="text-[11px] text-stone-500 mt-1">Kerenyahan istimewa dengan pori mekar maksimal & gurih alami.</p>
+                  </div>
+                  <div className="pt-3 border-t border-stone-200/80 mt-2 flex justify-between items-center text-[11px]">
+                    <span className="text-emerald-700 font-semibold">Tampil di Aneka Varian</span>
+                    <a
+                      href={APP_ASSETS.rambakCrisp}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-amber-600 hover:text-amber-800 font-bold"
+                    >
+                      Buka
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

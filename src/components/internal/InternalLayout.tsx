@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { APP_ASSETS } from '../../assets/images';
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -134,8 +135,13 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
               onClick={() => setCurrentView('dashboard')}
               className="flex items-center gap-2 sm:gap-2.5 cursor-pointer min-w-0 select-none"
             >
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white shadow-xs font-bold text-sm shrink-0">
-                T
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden bg-white border border-amber-300 shadow-xs shrink-0">
+                <img
+                  src={APP_ASSETS.logo}
+                  alt="Logo Tisoffindo"
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
               </div>
               <div className="min-w-0">
                 <span className="font-bold text-stone-900 text-sm tracking-tight sm:text-base font-serif truncate block">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { ShoppingBag, Heart, ShieldCheck, Lock } from 'lucide-react';
+import { APP_ASSETS } from '../../assets/images';
 
 export const PublicFooter: React.FC = () => {
   const { setCurrentView, companyProfile } = useApp();
@@ -17,8 +18,13 @@ export const PublicFooter: React.FC = () => {
           {/* Brand */}
           <div className="md:col-span-2 space-y-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-stone-950 font-bold">
-                <ShoppingBag className="w-4 h-4" />
+              <div className="w-9 h-9 rounded-lg overflow-hidden bg-white border border-amber-400/40 shrink-0">
+                <img
+                  src={APP_ASSETS.logo}
+                  alt="Logo Tisoffindo"
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
               </div>
               <span className="text-lg font-bold text-white font-serif tracking-tight">
                 {businessName}

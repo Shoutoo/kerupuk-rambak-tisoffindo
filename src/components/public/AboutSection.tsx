@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sun, Flame, Sparkles, CheckCircle, ShieldCheck, Factory, Award } from 'lucide-react';
+import { APP_ASSETS } from '../../assets/images';
 
 export const AboutSection: React.FC = () => {
   return (
@@ -26,8 +27,8 @@ export const AboutSection: React.FC = () => {
             <div className="space-y-4">
               <div className="rounded-2xl overflow-hidden shadow-md aspect-4/5 bg-stone-200">
                 <img
-                  src="https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=600&q=80"
-                  alt="Penjemuran Krecek Kulit Sapi Alami"
+                  src={APP_ASSETS.krecekMentah}
+                  alt="Penjemuran Krecek Kulit Sapi Alami Boyolali"
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
                 />
@@ -49,8 +50,8 @@ export const AboutSection: React.FC = () => {
               </div>
               <div className="rounded-2xl overflow-hidden shadow-md aspect-4/5 bg-stone-200">
                 <img
-                  src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=600&q=80"
-                  alt="Kerupuk Rambak Matang Tisoffindo"
+                  src={APP_ASSETS.rambakStacks}
+                  alt="Stok Kemasan Kerupuk Rambak Tisoffindo Siap Santap"
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
                 />

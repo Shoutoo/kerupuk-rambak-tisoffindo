@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Sparkles, ArrowRight, Award, CheckCircle2, Phone, Star, ExternalLink, MapPin } from 'lucide-react';
+import { Sparkles, ArrowRight, Award, CheckCircle2, Phone, Star, ExternalLink, MapPin, PackageCheck } from 'lucide-react';
+import { APP_ASSETS } from '../../assets/images';
 
 export const HeroSection: React.FC = () => {
   const { setCurrentView, companyProfile } = useApp();
@@ -125,17 +126,17 @@ export const HeroSection: React.FC = () => {
               <div className="relative rounded-2xl bg-stone-850 p-3 sm:p-4 border border-stone-700/80 shadow-2xl">
                 <div className="relative aspect-4/3 rounded-xl overflow-hidden bg-stone-800">
                   <img
-                    src="https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?auto=format&fit=crop&w=800&q=80"
-                    alt="Kerupuk Rambak Sapi Super Gurih Tisoffindo"
+                    src={APP_ASSETS.rambakPack}
+                    alt="Kemasan Asli Kerupuk Rambak Sapi Tisoffindo Boyolali"
                     className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-3 left-3 bg-stone-900/85 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium text-amber-300 border border-stone-700 flex items-center gap-1.5">
-                    <Award className="w-3.5 h-3.5 text-amber-400" />
-                    Best Seller No. 1
+                  <div className="absolute top-3 left-3 bg-stone-900/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-amber-300 border border-stone-700 flex items-center gap-1.5 shadow-sm">
+                    <PackageCheck className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Kemasan Asli Tisoffindo</span>
                   </div>
                   <div className="absolute bottom-3 right-3 bg-amber-500 text-stone-950 px-3 py-1 rounded-lg text-xs font-bold shadow-md">
-                    Mekar Sempurna
+                    Renyah & Gurih
                   </div>
                 </div>
 

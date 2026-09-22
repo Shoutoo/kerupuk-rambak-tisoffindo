@@ -86,14 +86,14 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
   USER: 'tisoffindo_current_user_v1',
-  PRODUCTS: 'tisoffindo_products_v1',
+  PRODUCTS: 'tisoffindo_products_v2',
   USERS: 'tisoffindo_users_v1',
   SALES: 'tisoffindo_sales_v1',
   MOVEMENTS: 'tisoffindo_stock_movements_v1',
   LOGS: 'tisoffindo_activity_logs_v1',
   CATEGORIES: 'tisoffindo_categories_v1',
-  COMPANY_PROFILE: 'tisoffindo_company_profile_v1',
-  GALLERY: 'tisoffindo_gallery_v1',
+  COMPANY_PROFILE: 'tisoffindo_company_profile_v2',
+  GALLERY: 'tisoffindo_gallery_v2',
   TESTIMONIALS: 'tisoffindo_testimonials_v1',
 };
 
