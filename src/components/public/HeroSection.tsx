@@ -12,7 +12,7 @@ export const HeroSection: React.FC = () => {
   };
 
   const openWhatsApp = () => {
-    const cleanPhone = (companyProfile?.phone || '0857-2811-1147').replace(/[^0-9]/g, '');
+    const cleanPhone = (companyProfile?.phone || '0812-3456-7890').replace(/[^0-9]/g, '');
     const waNumber = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone;
     window.open(
       `https://wa.me/${waNumber}?text=Halo%20${encodeURIComponent(
@@ -105,7 +105,7 @@ export const HeroSection: React.FC = () => {
                 className="px-5 sm:px-6 py-3 rounded-xl bg-stone-800/90 hover:bg-stone-800 text-stone-100 border border-stone-700 font-semibold text-xs sm:text-sm flex items-center gap-2 transition-all hover:border-amber-500/50"
               >
                 <Phone className="w-4 h-4 text-amber-400" />
-                <span>WhatsApp: {companyProfile?.phone || '0857-2811-1147'}</span>
+                <span>WhatsApp: {companyProfile?.phone || '0812-3456-7890'}</span>
               </button>
               <button
                 type="button"

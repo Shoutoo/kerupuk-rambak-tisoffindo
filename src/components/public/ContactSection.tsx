@@ -19,7 +19,7 @@ export const ContactSection: React.FC = () => {
   const address =
     companyProfile?.address ||
     'Kliwonan, RT.01/RW.07, Kliwonan, Jeron, Kec. Nogosari, Kabupaten Boyolali, Jawa Tengah 57378';
-  const phone = companyProfile?.phone || '0857-2811-1147';
+  const phone = companyProfile?.phone || '0812-3456-7890';
   const operatingHours = companyProfile?.operating_hours || 'Buka 24 jam';
   const gmapsUrl = companyProfile?.gmaps_url || 'https://maps.app.goo.gl/G8kHXoGYuuycJxxy7';
   const lat = companyProfile?.gmaps_embed_lat || -7.4620805;

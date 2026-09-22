@@ -92,7 +92,7 @@ const STORAGE_KEYS = {
   MOVEMENTS: 'tisoffindo_stock_movements_v1',
   LOGS: 'tisoffindo_activity_logs_v1',
   CATEGORIES: 'tisoffindo_categories_v1',
-  COMPANY_PROFILE: 'tisoffindo_company_profile_v2',
+  COMPANY_PROFILE: 'tisoffindo_company_profile_v3',
   GALLERY: 'tisoffindo_gallery_v2',
   TESTIMONIALS: 'tisoffindo_testimonials_v1',
 };

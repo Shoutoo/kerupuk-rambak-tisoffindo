@@ -76,7 +76,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ sale, onClose }) => 
             <p className="font-bold text-sm text-stone-900 uppercase">TISOFFINDO</p>
             <p className="text-[11px] text-stone-600">Pabrik Kerupuk Rambak Sapi Boyolali</p>
             <p className="text-[10px] text-stone-500">Kliwonan, Jeron, Nogosari, Boyolali, Jawa Tengah</p>
-            <p className="text-[10px] text-stone-500">Telp/WA: 0857-2811-1147 (Buka 24 Jam)</p>
+            <p className="text-[10px] text-stone-500">Telp/WA: 0812-3456-7890 (Buka 24 Jam)</p>
           </div>
 
           <div className="border-t border-dashed border-stone-300 pt-2 space-y-1 text-[11px]">

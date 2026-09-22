@@ -421,7 +421,7 @@ export const INITIAL_COMPANY_PROFILE: CompanyProfile = {
   id: 'cp-1',
   business_name: 'Pabrik Krupuk (Kerupuk Rambak Tisoffindo)',
   address: 'Kliwonan, RT.01/RW.07, Kliwonan, Jeron, Kec. Nogosari, Kabupaten Boyolali, Jawa Tengah 57378',
-  phone: '0857-2811-1147',
+  phone: '0812-3456-7890',
   operating_hours: 'Buka 24 jam',
   gmaps_url: 'https://maps.app.goo.gl/G8kHXoGYuuycJxxy7',
   gmaps_embed_lat: -7.4620805,
