@@ -1,0 +1,6 @@
+{
+  "name": "Tisoffindo - Penjualan Kerupuk Rambak",
+  "description": "Aplikasi Web Penjualan dan Manajemen Stok Kerupuk Rambak Tisoffindo lengkap dengan Company Profile, Kasir Transaksi POS, Mutasi Stok, dan Laporan Rekap Penjualan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,177 @@
+import React, { useState } from 'react';
+import { useApp } from '../../context/AppContext';
+import { Product } from '../../types';
+import { Search, ShoppingBag, Phone, Check, Tag } from 'lucide-react';
+
+export const CatalogSection: React.FC = () => {
+  const { products, categories } = useApp();
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Active products only for public
+  const activeProducts = products.filter((p) => p.is_active);
+
+  const filteredProducts = activeProducts.filter((product) => {
+    const matchCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
+    const matchSearch =
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchCategory && matchSearch;
+  });
+
+  const handleOrderWhatsApp = (product: Product) => {
+    const message = encodeURIComponent(
+      `Halo Tisoffindo, saya ingin memesan:\n\n*Produk:* ${product.name}\n*Harga:* Rp ${product.price.toLocaleString('id-ID')} / ${product.unit}\n\nMohon info ketersediaan dan ongkos kirim ke alamat saya. Terima kasih!`
+    );
+    window.open(`https://wa.me/6281234567890?text=${message}`, '_blank');
+  };
+
+  return (
+    <section id="produk" className="py-20 bg-stone-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold tracking-wide uppercase mb-3">
+            <ShoppingBag className="w-3.5 h-3.5 text-amber-700" />
+            Katalog Produk Kami
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold font-serif text-stone-900 tracking-tight">
+            Varian Kerupuk Rambak Tisoffindo
+          </h2>
+          <p className="mt-3 text-stone-600 text-sm sm:text-base">
+            Pilih varian favorit Anda, mulai dari rambak sapi super gurih matang, kemasan oleh-oleh, hingga krecek mentah siap goreng untuk persediaan jangka panjang.
+          </p>
+        </div>
+
+        {/* Filter & Search Bar */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+          {/* Category Chips */}
+          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                selectedCategory === 'all'
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
+              }`}
+            >
+              Semua Kategori ({activeProducts.length})
+            </button>
+            {categories.map((cat) => {
+              const count = activeProducts.filter((p) => p.category_id === cat.id).length;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    selectedCategory === cat.id
+                      ? 'bg-amber-600 text-white shadow-xs'
+                      : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
+                  }`}
+                >
+                  {cat.name} ({count})
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search Box */}
+          <div className="relative w-full md:w-72">
+            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Cari kerupuk rambak..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 rounded-lg bg-white border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+            />
+          </div>
+        </div>
+
+        {/* Products Grid */}
+        {filteredProducts.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-2xl border border-stone-200">
+            <p className="text-stone-500 text-sm">Tidak ada produk yang cocok dengan pencarian Anda.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                className="group bg-white rounded-2xl border border-stone-200/80 shadow-2xs overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg hover:border-amber-400/50"
+              >
+                {/* Product Image */}
+                <div className="relative aspect-4/3 overflow-hidden bg-stone-100">
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute top-2.5 left-2.5">
+                    <span className="px-2.5 py-1 rounded-md bg-stone-900/80 backdrop-blur-xs text-[11px] font-semibold text-amber-300">
+                      {product.category_name || 'Rambak'}
+                    </span>
+                  </div>
+                  <div className="absolute bottom-2.5 right-2.5">
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500 text-stone-950 text-[11px] font-bold shadow-xs">
+                      100% Halal
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-4 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-bold text-stone-900 text-base leading-snug group-hover:text-amber-700 transition-colors">
+                      {product.name}
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-1.5 line-clamp-2 leading-relaxed">
+                      {product.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] text-stone-400 block font-medium">Harga Resmi:</span>
+                      <span className="text-base font-extrabold text-stone-900 font-serif">
+                        Rp {product.price.toLocaleString('id-ID')}
+                      </span>
+                      <span className="text-xs text-stone-500 font-normal"> /{product.unit}</span>
+                    </div>
+
+                    <button
+                      onClick={() => handleOrderWhatsApp(product)}
+                      className="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors shrink-0"
+                      title="Pesan via WhatsApp"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>Pesan</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Note info banner */}
+        <div className="mt-12 p-4 rounded-xl bg-amber-50/80 border border-amber-200/70 flex flex-col sm:flex-row items-center justify-between gap-3 text-amber-900 text-xs">
+          <div className="flex items-center gap-2">
+            <Tag className="w-4 h-4 text-amber-700 shrink-0" />
+            <span>Menerima pesanan partai besar (grosir), reseller, hajatan nikah, dan pengadaan rumah makan dengan harga khusus!</span>
+          </div>
+          <button
+            onClick={() => {
+              const el = document.getElementById('kontak');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="font-bold underline underline-offset-2 shrink-0 hover:text-amber-950"
+          >
+            Hubungi Bagian Penjualan &rarr;
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+};
