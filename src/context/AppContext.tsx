@@ -24,6 +24,7 @@ import {
   INITIAL_GALLERY,
   INITIAL_TESTIMONIALS,
 } from '../data/initialData';
+import { getSupabaseClient } from '../utils/supabaseClient';
 
 interface AppContextType {
   // Navigation & Session
@@ -244,6 +245,87 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.removeItem(STORAGE_KEYS.USER);
     }
   }, [currentUser]);
+
+  // Live Sync with Supabase on mount
+  useEffect(() => {
+    const fetchLiveSupabaseData = async () => {
+      const client = getSupabaseClient();
+      if (!client) return;
+
+      try {
+        // 1. Fetch Company Profile
+        const { data: cpData, error: cpErr } = await client
+          .from('company_profile')
+          .select('*')
+          .limit(1)
+          .maybeSingle();
+
+        if (!cpErr && cpData) {
+          setCompanyProfile((prev) => ({
+            ...prev,
+            business_name: cpData.business_name || prev.business_name,
+            address: cpData.address || prev.address,
+            phone: cpData.phone || prev.phone,
+            operating_hours: cpData.operating_hours || prev.operating_hours,
+            gmaps_url: cpData.gmaps_url || prev.gmaps_url,
+            gmaps_embed_lat: Number(cpData.gmaps_embed_lat) || prev.gmaps_embed_lat,
+            gmaps_embed_lng: Number(cpData.gmaps_embed_lng) || prev.gmaps_embed_lng,
+            rating: Number(cpData.rating) || prev.rating,
+            review_count: Number(cpData.review_count) || prev.review_count,
+            updated_at: cpData.updated_at || prev.updated_at,
+          }));
+        }
+
+        // 2. Fetch Products
+        const { data: prodData, error: prodErr } = await client
+          .from('products')
+          .select('*, product_categories(name)')
+          .order('name', { ascending: true });
+
+        if (!prodErr && prodData && prodData.length > 0) {
+          const mapped: Product[] = prodData.map((item: any) => ({
+            id: item.id,
+            category_id: item.category_id || '',
+            category_name: item.product_categories?.name || 'Umum',
+            name: item.name,
+            description: item.description || '',
+            price: Number(item.price),
+            unit: (item.unit || 'bungkus') as any,
+            image_url: item.image_url || '',
+            stock_qty: Number(item.stock_qty),
+            min_stock: Number(item.min_stock),
+            is_active: item.is_active ?? true,
+            created_at: item.created_at || new Date().toISOString(),
+          }));
+          setProducts(mapped);
+        }
+
+        // 3. Fetch Testimonials
+        const { data: testiData, error: testiErr } = await client
+          .from('testimonials')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!testiErr && testiData && testiData.length > 0) {
+          setTestimonials(
+            testiData.map((t: any) => ({
+              id: t.id,
+              customer_name: t.customer_name,
+              content: t.content,
+              rating: Number(t.rating) || 5,
+              source: t.source || 'Google Maps',
+              is_featured: t.is_featured ?? true,
+              created_at: t.created_at || new Date().toISOString(),
+            }))
+          );
+        }
+      } catch (err) {
+        console.warn('Supabase fetch failed silently, fallback to local storage:', err);
+      }
+    };
+
+    fetchLiveSupabaseData();
+  }, []);
 
   // Log activity helper
   const logActivity = (action: string, detail: string) => {
