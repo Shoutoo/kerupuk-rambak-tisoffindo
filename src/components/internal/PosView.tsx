@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   Boxes,
 } from 'lucide-react';
+import { resolveProductImageUrl, getProductFallbackImage } from '../../utils/productImages';
 
 interface CartItem {
   product: Product;
@@ -270,10 +271,16 @@ export const PosView: React.FC = () => {
                   <div>
                     <div className="relative aspect-4/3 rounded-lg overflow-hidden bg-stone-100 mb-2">
                       <img
-                        src={p.image_url}
+                        src={resolveProductImageUrl(p.image_url, p.name, p.category_name)}
                         alt={p.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const fallback = getProductFallbackImage(p.name, p.category_name);
+                          if (e.currentTarget.src !== fallback) {
+                            e.currentTarget.src = fallback;
+                          }
+                        }}
                       />
                       {/* Stock pill */}
                       <div className="absolute bottom-1.5 left-1.5">

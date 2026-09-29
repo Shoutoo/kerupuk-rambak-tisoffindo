@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Product } from '../../types';
 import { Search, ShoppingBag, Phone, Check, Tag } from 'lucide-react';
+import { resolveProductImageUrl, getProductFallbackImage } from '../../utils/productImages';
 
 export const CatalogSection: React.FC = () => {
   const { products, categories } = useApp();
@@ -103,10 +104,16 @@ export const CatalogSection: React.FC = () => {
                 {/* Product Image */}
                 <div className="relative aspect-4/3 overflow-hidden bg-stone-100">
                   <img
-                    src={product.image_url}
+                    src={resolveProductImageUrl(product.image_url, product.name, product.category_name)}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      const fallback = getProductFallbackImage(product.name, product.category_name);
+                      if (e.currentTarget.src !== fallback) {
+                        e.currentTarget.src = fallback;
+                      }
+                    }}
                   />
                   <div className="absolute top-2.5 left-2.5">
                     <span className="px-2.5 py-1 rounded-md bg-stone-900/80 backdrop-blur-xs text-[11px] font-semibold text-amber-300">

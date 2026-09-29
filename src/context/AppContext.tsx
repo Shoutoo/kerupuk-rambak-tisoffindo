@@ -25,6 +25,7 @@ import {
   INITIAL_TESTIMONIALS,
 } from '../data/initialData';
 import { getSupabaseClient } from '../utils/supabaseClient';
+import { resolveProductImageUrl } from '../utils/productImages';
 
 interface AppContextType {
   // Navigation & Session
@@ -291,7 +292,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             description: item.description || '',
             price: Number(item.price),
             unit: (item.unit || 'bungkus') as any,
-            image_url: item.image_url || '',
+            image_url: resolveProductImageUrl(item.image_url, item.name, item.product_categories?.name),
             stock_qty: Number(item.stock_qty),
             min_stock: Number(item.min_stock),
             is_active: item.is_active ?? true,

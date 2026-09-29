@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Camera, Star, ExternalLink, Quote, X, Maximize2, ShieldCheck } from 'lucide-react';
 import { GalleryItem, Testimonial } from '../../types';
+import { APP_ASSETS } from '../../assets/images';
 
 export const GallerySection: React.FC = () => {
   const { gallery, testimonials, companyProfile } = useApp();
@@ -36,10 +37,15 @@ export const GallerySection: React.FC = () => {
               className="group relative rounded-2xl overflow-hidden aspect-4/3 bg-stone-200 shadow-sm border border-stone-200 cursor-pointer transform hover:-translate-y-1 transition-all duration-300"
             >
               <img
-                src={item.image_url}
+                src={item.image_url || APP_ASSETS.rambakPack}
                 alt={item.caption || 'Foto Galeri Pabrik Kerupuk Rambak Tisoffindo'}
                 className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-500"
                 referrerPolicy="no-referrer"
+                onError={(e) => {
+                  if (e.currentTarget.src !== APP_ASSETS.rambakPack) {
+                    e.currentTarget.src = APP_ASSETS.rambakPack;
+                  }
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-900/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 sm:p-5">
                 <div className="flex items-center justify-between text-amber-300 mb-1">
@@ -75,10 +81,15 @@ export const GallerySection: React.FC = () => {
 
               <div className="max-h-[70vh] bg-black flex items-center justify-center overflow-hidden">
                 <img
-                  src={selectedPhoto.image_url}
+                  src={selectedPhoto.image_url || APP_ASSETS.rambakPack}
                   alt={selectedPhoto.caption}
                   className="w-full h-full max-h-[70vh] object-contain"
                   referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    if (e.currentTarget.src !== APP_ASSETS.rambakPack) {
+                      e.currentTarget.src = APP_ASSETS.rambakPack;
+                    }
+                  }}
                 />
               </div>
 

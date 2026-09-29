@@ -16,6 +16,7 @@ import {
   X,
   Package,
 } from 'lucide-react';
+import { resolveProductImageUrl, getProductFallbackImage } from '../../utils/productImages';
 
 export const ProductsView: React.FC = () => {
   const {
@@ -246,10 +247,16 @@ export const ProductsView: React.FC = () => {
               >
                 <div className="flex items-start gap-3">
                   <img
-                    src={prod.image_url}
+                    src={resolveProductImageUrl(prod.image_url, prod.name, prod.category_name)}
                     alt={prod.name}
                     className="w-16 h-16 rounded-xl object-cover bg-stone-100 shrink-0 border border-stone-100"
                     referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      const fallback = getProductFallbackImage(prod.name, prod.category_name);
+                      if (e.currentTarget.src !== fallback) {
+                        e.currentTarget.src = fallback;
+                      }
+                    }}
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
@@ -390,10 +397,16 @@ export const ProductsView: React.FC = () => {
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
                           <img
-                            src={prod.image_url}
+                            src={resolveProductImageUrl(prod.image_url, prod.name, prod.category_name)}
                             alt={prod.name}
                             className="w-10 h-10 rounded-lg object-cover bg-stone-100 shrink-0"
                             referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              const fallback = getProductFallbackImage(prod.name, prod.category_name);
+                              if (e.currentTarget.src !== fallback) {
+                                e.currentTarget.src = fallback;
+                              }
+                            }}
                           />
                           <div>
                             <p className="font-bold text-stone-900 leading-snug">{prod.name}</p>
