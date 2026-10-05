@@ -40,8 +40,12 @@ export const PosView: React.FC = () => {
 
   // Filter active products
   const activeProducts = products.filter((p) => p.is_active);
+  const selectedCatObj = categories.find((c) => c.id === selectedCategory);
   const filteredProducts = activeProducts.filter((p) => {
-    const matchCat = selectedCategory === 'all' || p.category_id === selectedCategory;
+    const matchCat =
+      selectedCategory === 'all' ||
+      p.category_id === selectedCategory ||
+      (selectedCatObj && p.category_name?.toLowerCase().trim() === selectedCatObj.name.toLowerCase().trim());
     const matchSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -229,25 +233,30 @@ export const PosView: React.FC = () => {
                 onClick={() => setSelectedCategory('all')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors min-h-[36px] ${
                   selectedCategory === 'all'
-                    ? 'bg-stone-900 text-white shadow-xs'
+                    ? 'bg-amber-600 text-white shadow-xs'
                     : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                 }`}
               >
                 Semua ({activeProducts.length})
               </button>
-              {categories.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setSelectedCategory(c.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors min-h-[36px] ${
-                    selectedCategory === c.id
-                      ? 'bg-amber-600 text-white shadow-xs'
-                      : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-                  }`}
-                >
-                  {c.name}
-                </button>
-              ))}
+              {categories.map((c) => {
+                const count = activeProducts.filter(
+                  (p) => p.category_id === c.id || p.category_name?.toLowerCase().trim() === c.name.toLowerCase().trim()
+                ).length;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelectedCategory(c.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors min-h-[36px] ${
+                      selectedCategory === c.id
+                        ? 'bg-amber-600 text-white shadow-xs'
+                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                    }`}
+                  >
+                    {c.name} ({count})
+                  </button>
+                );
+              })}
             </div>
           </div>
 

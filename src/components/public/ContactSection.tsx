@@ -55,12 +55,12 @@ export const ContactSection: React.FC = () => {
   ];
 
   return (
-    <section id="kontak" className="py-16 sm:py-20 bg-stone-900 text-stone-100">
+    <section id="kontak" className="py-16 sm:py-20 bg-[#1C1917] text-stone-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold tracking-wide uppercase mb-3">
-            <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#A8441A]/20 border border-[#A8441A]/40 text-[#F2A054] text-xs font-bold tracking-wide uppercase mb-3">
+            <MessageSquare className="w-3.5 h-3.5 text-[#F2A054]" />
             <span>Kontak & Lokasi Pabrik</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold font-serif text-white tracking-tight">
@@ -76,12 +76,12 @@ export const ContactSection: React.FC = () => {
           {steps.map((st, i) => (
             <div
               key={i}
-              className="p-5 sm:p-6 rounded-2xl bg-stone-800/80 border border-stone-700/80 relative overflow-hidden flex flex-col justify-between"
+              className="p-5 sm:p-6 rounded-2xl bg-[#26201D] border border-[#3E302A] relative overflow-hidden flex flex-col justify-between hover:border-[#A8441A]/60 transition-colors"
             >
               <div>
-                <div className="text-3xl font-extrabold text-amber-500/30 font-serif mb-2">{st.num}</div>
+                <div className="text-3xl font-extrabold text-[#F2A054]/30 font-serif mb-2">{st.num}</div>
                 <h4 className="text-base font-bold text-white mb-1.5">{st.title}</h4>
-                <p className="text-xs text-stone-400 leading-relaxed">{st.desc}</p>
+                <p className="text-xs text-stone-300 leading-relaxed">{st.desc}</p>
               </div>
             </div>
           ))}
@@ -92,7 +92,7 @@ export const ContactSection: React.FC = () => {
           {/* Left Column: Business Details & Contact Cards */}
           <div className="lg:col-span-6 space-y-6">
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
                   Operasional: {operatingHours}
                 </span>
@@ -114,14 +114,14 @@ export const ContactSection: React.FC = () => {
 
             <div className="space-y-3.5 pt-1">
               {/* Alamat */}
-              <div className="flex items-start gap-3.5 p-4 rounded-xl bg-stone-800/70 border border-stone-700">
-                <MapPin className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3.5 p-4 rounded-xl bg-[#26201D] border border-[#3E302A]">
+                <MapPin className="w-5 h-5 text-[#F2A054] shrink-0 mt-0.5" />
                 <div className="min-w-0 flex-1">
                   <h5 className="font-bold text-sm text-stone-200">Alamat Pabrik & Sentra Produksi:</h5>
-                  <p className="text-xs sm:text-sm text-stone-300 mt-1 leading-relaxed">{address}</p>
+                  <p className="text-xs sm:text-sm text-stone-300 mt-1 leading-relaxed break-words">{address}</p>
                   {plusCode && (
                     <div className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-stone-400 bg-stone-900/60 px-2 py-0.5 rounded border border-stone-700/60">
-                      <Compass className="w-3 h-3 text-amber-400" />
+                      <Compass className="w-3 h-3 text-[#F2A054]" />
                       <span>Plus Code: <strong>{plusCode}</strong></span>
                     </div>
                   )}
@@ -129,8 +129,8 @@ export const ContactSection: React.FC = () => {
               </div>
 
               {/* Jam Operasional */}
-              <div className="flex items-start gap-3.5 p-4 rounded-xl bg-stone-800/70 border border-stone-700">
-                <Clock className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3.5 p-4 rounded-xl bg-[#26201D] border border-[#3E302A]">
+                <Clock className="w-5 h-5 text-[#F2A054] shrink-0 mt-0.5" />
                 <div>
                   <h5 className="font-bold text-sm text-stone-200">Jam Operasional:</h5>
                   <p className="text-xs sm:text-sm text-stone-300 mt-1 font-medium text-emerald-400">
@@ -143,8 +143,8 @@ export const ContactSection: React.FC = () => {
               </div>
 
               {/* Kontak WA & Telp */}
-              <div className="flex items-start gap-3.5 p-4 rounded-xl bg-stone-800/70 border border-stone-700">
-                <Phone className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3.5 p-4 rounded-xl bg-[#26201D] border border-[#3E302A]">
+                <Phone className="w-5 h-5 text-[#F2A054] shrink-0 mt-0.5" />
                 <div className="min-w-0 flex-1">
                   <h5 className="font-bold text-sm text-stone-200">No. Telepon & WhatsApp:</h5>
                   <p className="text-xs sm:text-sm text-stone-300 mt-1 font-mono font-semibold">

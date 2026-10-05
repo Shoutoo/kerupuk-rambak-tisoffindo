@@ -283,7 +283,7 @@ export const ReportsView: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[560px]">
             <thead>
               <tr className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase tracking-wider">
                 <th className="py-2.5 px-3">Nama Produk</th>

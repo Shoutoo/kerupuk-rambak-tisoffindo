@@ -106,7 +106,7 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
   const allowedNavItems = navItems.filter((item) => item.roles.includes(currentUser.role));
 
   return (
-    <div className="min-h-screen bg-stone-100/90 flex flex-col">
+    <div className="min-h-screen bg-stone-100/90 flex flex-col w-full overflow-x-hidden">
       {/* Top Header */}
       <header className="sticky top-0 z-30 bg-white border-b border-stone-200/90 shadow-2xs">
         <div className="px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">

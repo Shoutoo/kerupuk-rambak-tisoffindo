@@ -88,6 +88,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
   USER: 'tisoffindo_current_user_v1',
+  VIEW: 'tisoffindo_current_view_v1',
   PRODUCTS: 'tisoffindo_products_v2',
   USERS: 'tisoffindo_users_v1',
   SALES: 'tisoffindo_sales_v1',
@@ -101,7 +102,23 @@ const STORAGE_KEYS = {
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Current active view
-  const [currentView, setCurrentView] = useState<string>('company_profile');
+  const [currentView, setCurrentViewState] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.VIEW);
+      return saved ? JSON.parse(saved) : 'company_profile';
+    } catch {
+      return 'company_profile';
+    }
+  });
+
+  const setCurrentView = (view: string) => {
+    setCurrentViewState(view);
+    try {
+      localStorage.setItem(STORAGE_KEYS.VIEW, JSON.stringify(view));
+    } catch {
+      // ignore
+    }
+  };
 
   // Active Receipt Modal
   const [activeReceipt, setActiveReceipt] = useState<Sale | null>(null);
@@ -374,6 +391,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     setCurrentUser(null);
     setCurrentView('company_profile');
+    try {
+      localStorage.removeItem(STORAGE_KEYS.USER);
+      localStorage.setItem(STORAGE_KEYS.VIEW, JSON.stringify('company_profile'));
+    } catch {
+      // ignore
+    }
   };
 
   // Product Management (Admin)

@@ -219,7 +219,7 @@ export const UsersView: React.FC = () => {
           {/* Desktop Users Table (hidden md:block) */}
           <div className="hidden md:block bg-white rounded-2xl border border-stone-200/90 overflow-hidden shadow-2xs">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[680px]">
                 <thead>
                   <tr className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase tracking-wider">
                     <th className="py-3 px-4">Nama Lengkap</th>
@@ -337,7 +337,7 @@ export const UsersView: React.FC = () => {
           {/* Desktop Logs Table (hidden md:block) */}
           <div className="hidden md:block bg-white rounded-2xl border border-stone-200/90 overflow-hidden shadow-2xs">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[600px]">
                 <thead>
                   <tr className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase tracking-wider">
                     <th className="py-3 px-4">Waktu</th>

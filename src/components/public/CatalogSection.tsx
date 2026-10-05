@@ -9,11 +9,14 @@ export const CatalogSection: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Active products only for public
   const activeProducts = products.filter((p) => p.is_active);
+  const selectedCatObj = categories.find((c) => c.id === selectedCategory);
 
   const filteredProducts = activeProducts.filter((product) => {
-    const matchCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
+    const matchCategory =
+      selectedCategory === 'all' ||
+      product.category_id === selectedCategory ||
+      (selectedCatObj && product.category_name?.toLowerCase().trim() === selectedCatObj.name.toLowerCase().trim());
     const matchSearch =
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -50,24 +53,26 @@ export const CatalogSection: React.FC = () => {
           <div className="flex flex-wrap gap-2 w-full md:w-auto">
             <button
               onClick={() => setSelectedCategory('all')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                 selectedCategory === 'all'
-                  ? 'bg-amber-600 text-white shadow-xs'
-                  : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
+                  ? 'bg-[#A8441A] text-white shadow-xs'
+                  : 'bg-white text-stone-700 border border-stone-200 hover:bg-[#F4EFE9]'
               }`}
             >
               Semua Kategori ({activeProducts.length})
             </button>
             {categories.map((cat) => {
-              const count = activeProducts.filter((p) => p.category_id === cat.id).length;
+              const count = activeProducts.filter(
+                (p) => p.category_id === cat.id || p.category_name?.toLowerCase().trim() === cat.name.toLowerCase().trim()
+              ).length;
               return (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                     selectedCategory === cat.id
-                      ? 'bg-amber-600 text-white shadow-xs'
-                      : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
+                      ? 'bg-[#A8441A] text-white shadow-xs'
+                      : 'bg-white text-stone-700 border border-stone-200 hover:bg-[#F4EFE9]'
                   }`}
                 >
                   {cat.name} ({count})
@@ -163,17 +168,19 @@ export const CatalogSection: React.FC = () => {
         )}
 
         {/* Note info banner */}
-        <div className="mt-12 p-4 rounded-xl bg-amber-50/80 border border-amber-200/70 flex flex-col sm:flex-row items-center justify-between gap-3 text-amber-900 text-xs">
-          <div className="flex items-center gap-2">
-            <Tag className="w-4 h-4 text-amber-700 shrink-0" />
-            <span>Menerima pesanan partai besar (grosir), reseller, hajatan nikah, dan pengadaan rumah makan dengan harga khusus!</span>
+        <div className="mt-12 p-5 rounded-2xl bg-[#EDE3D6] border border-[#E0D6CA] flex flex-col sm:flex-row items-center justify-between gap-4 text-[#3A2618] text-xs sm:text-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-[#F4EFE9] flex items-center justify-center shrink-0 border border-[#E0D6CA]">
+              <Tag className="w-4 h-4 text-[#A8441A]" />
+            </div>
+            <span className="font-medium">Menerima pesanan partai besar (grosir), reseller, hajatan nikah, dan pengadaan rumah makan dengan harga khusus!</span>
           </div>
           <button
             onClick={() => {
               const el = document.getElementById('kontak');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="font-bold underline underline-offset-2 shrink-0 hover:text-amber-950"
+            className="px-5 py-2.5 rounded-full bg-[#F2A054] hover:bg-[#E88D3A] text-[#2A1405] font-bold text-xs shadow-xs transition-colors shrink-0"
           >
             Hubungi Bagian Penjualan &rarr;
           </button>

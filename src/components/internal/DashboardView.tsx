@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
-  const { currentUser, sales, products, criticalStockProducts, setCurrentView } = useApp();
+  const { currentUser, sales, products, criticalStockProducts, setCurrentView, setActiveReceipt } = useApp();
 
   if (!currentUser) return null;
   const isAdmin = currentUser.role === 'admin';
@@ -80,11 +80,12 @@ export const DashboardView: React.FC = () => {
     };
   });
   const maxRevenue = Math.max(...last7Days.map((d) => d.revenue));
+  const avgRevenue = Math.round(last7Days.reduce((acc, d) => acc + d.revenue, 0) / 7);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Top Banner with Greeting & Role Badge */}
-      <div className="bg-white rounded-2xl border border-stone-200/90 p-5 sm:p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-stone-200/90 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 capitalize flex items-center gap-1">
@@ -141,7 +142,7 @@ export const DashboardView: React.FC = () => {
         <div className="bg-white rounded-2xl border border-stone-200/90 p-4 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-stone-500">
-              {isAdmin ? 'Omzet Bulan Berjalan (Sep)' : 'Penjualan Saya Bulan Ini'}
+              {isAdmin ? `Omzet Bulan Berjalan (${now.toLocaleDateString('id-ID', { month: 'short' })})` : 'Penjualan Saya Bulan Ini'}
             </span>
             <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
@@ -209,7 +210,7 @@ export const DashboardView: React.FC = () => {
               <p className="text-xs text-stone-500">Pergerakan total nominal transaksi per hari</p>
             </div>
             <span className="text-[11px] px-2.5 py-1 rounded-md bg-stone-100 text-stone-700 font-semibold">
-              Rata-rata: Rp 450.000 / hr
+              Rata-rata: Rp {avgRevenue.toLocaleString('id-ID')} / hr
             </span>
           </div>
 
@@ -264,11 +265,11 @@ export const DashboardView: React.FC = () => {
                     key={idx}
                     className="flex items-center justify-between p-2.5 rounded-xl bg-stone-50 border border-stone-100"
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
                       <span className="w-6 h-6 rounded-md bg-stone-200 text-stone-700 text-xs font-bold flex items-center justify-center shrink-0">
                         {idx + 1}
                       </span>
-                      <span className="text-xs font-semibold text-stone-800 truncate">{p.name}</span>
+                      <span className="text-xs font-semibold text-stone-800 line-clamp-2 leading-tight pr-2">{p.name}</span>
                     </div>
                     <div className="text-right shrink-0">
                       <span className="text-xs font-bold text-amber-700 block">{p.qty} terjual</span>
@@ -296,7 +297,7 @@ export const DashboardView: React.FC = () => {
 
       {/* Bottom Section: Recent Transactions List */}
       <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
           <div>
             <h3 className="font-bold text-stone-900 text-sm">
               {isAdmin ? 'Transaksi Penjualan Terbaru (Semua Petugas)' : 'Transaksi Terbaru yang Saya Input'}
@@ -307,30 +308,31 @@ export const DashboardView: React.FC = () => {
           </div>
           <button
             onClick={() => setCurrentView('sales_history')}
-            className="text-xs font-bold text-amber-700 hover:text-amber-800"
+            className="text-xs font-bold text-amber-700 hover:text-amber-800 self-start sm:self-auto"
           >
             Lihat Semua Transaksi &rarr;
           </button>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[680px]">
             <thead>
               <tr className="border-b border-stone-200 text-stone-400 font-semibold uppercase tracking-wider">
                 <th className="py-2.5 px-3">No. Faktur</th>
-                <th className="py-2.5 px-3">Waktu</th>
+                <th className="py-2.5 px-3 whitespace-nowrap">Waktu</th>
                 <th className="py-2.5 px-3">Pelanggan</th>
-                <th className="py-2.5 px-3">Petugas</th>
-                <th className="py-2.5 px-3">Metode Bayar</th>
+                <th className="py-2.5 px-3 whitespace-nowrap">Petugas</th>
+                <th className="py-2.5 px-3 whitespace-nowrap">Metode Bayar</th>
                 <th className="py-2.5 px-3 text-right">Total Transaksi</th>
                 <th className="py-2.5 px-3 text-center">Status</th>
+                <th className="py-2.5 px-3 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
               {relevantSales.slice(0, 5).map((sale) => (
                 <tr key={sale.id} className="hover:bg-stone-50/80 transition-colors">
-                  <td className="py-3 px-3 font-mono font-bold text-stone-900">{sale.invoice_no}</td>
-                  <td className="py-3 px-3 text-stone-500">
+                  <td className="py-3 px-3 font-mono font-bold text-stone-900 whitespace-nowrap">{sale.invoice_no}</td>
+                  <td className="py-3 px-3 text-stone-500 whitespace-nowrap">
                     {new Date(sale.created_at).toLocaleTimeString('id-ID', {
                       hour: '2-digit',
                       minute: '2-digit',
@@ -340,16 +342,16 @@ export const DashboardView: React.FC = () => {
                   <td className="py-3 px-3 text-stone-800 font-medium">
                     {sale.customer_name || 'Pelanggan Umum'}
                   </td>
-                  <td className="py-3 px-3 text-stone-600">{sale.created_by_name}</td>
-                  <td className="py-3 px-3">
+                  <td className="py-3 px-3 text-stone-600 whitespace-nowrap">{sale.created_by_name}</td>
+                  <td className="py-3 px-3 whitespace-nowrap">
                     <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 text-[11px] font-medium">
                       {sale.payment_method}
                     </span>
                   </td>
-                  <td className="py-3 px-3 text-right font-bold text-stone-900 font-mono">
+                  <td className="py-3 px-3 text-right font-bold text-stone-900 font-mono whitespace-nowrap">
                     Rp {sale.total_amount.toLocaleString('id-ID')}
                   </td>
-                  <td className="py-3 px-3 text-center">
+                  <td className="py-3 px-3 text-center whitespace-nowrap">
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                         sale.status === 'completed'
@@ -359,6 +361,16 @@ export const DashboardView: React.FC = () => {
                     >
                       {sale.status === 'completed' ? 'Selesai' : 'Dibatalkan'}
                     </span>
+                  </td>
+                  <td className="py-3 px-3 text-center whitespace-nowrap">
+                    <button
+                      onClick={() => setActiveReceipt(sale)}
+                      className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-amber-800 transition-colors inline-flex items-center gap-1 text-[11px] font-semibold"
+                      title="Cetak / Buka Struk Faktur"
+                    >
+                      <Receipt className="w-3.5 h-3.5 text-amber-700" />
+                      <span>Struk</span>
+                    </button>
                   </td>
                 </tr>
               ))}

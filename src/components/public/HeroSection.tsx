@@ -4,7 +4,7 @@ import { Sparkles, ArrowRight, Award, CheckCircle2, Phone, Star, ExternalLink, M
 import { APP_ASSETS } from '../../assets/images';
 
 export const HeroSection: React.FC = () => {
-  const { setCurrentView, companyProfile } = useApp();
+  const { setCurrentView, companyProfile, currentUser } = useApp();
 
   const scrollToProducts = () => {
     const el = document.getElementById('produk');
@@ -107,14 +107,25 @@ export const HeroSection: React.FC = () => {
                 <Phone className="w-4 h-4" style={{ color: '#A8441A' }} />
                 <span>WhatsApp: {companyProfile?.phone || '0812-3456-7890'}</span>
               </button>
-              <button
-                type="button"
-                onClick={() => setCurrentView('login')}
-                style={{ color: '#8E857C', fontFamily: 'Urbanist, sans-serif' }}
-                className="text-xs hover:text-[#A8441A] underline underline-offset-4 py-2 transition-colors"
-              >
-                Staf / Pemilik? Masuk Sistem &rarr;
-              </button>
+              {currentUser ? (
+                <button
+                  type="button"
+                  onClick={() => setCurrentView('dashboard')}
+                  style={{ color: '#A8441A', fontFamily: 'Urbanist, sans-serif' }}
+                  className="text-xs font-bold hover:underline py-2 transition-colors flex items-center gap-1"
+                >
+                  <span>Buka Dashboard ({currentUser.role === 'admin' ? 'Admin' : 'Petugas'}) &rarr;</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setCurrentView('login')}
+                  style={{ color: '#5C554F', fontFamily: 'Urbanist, sans-serif' }}
+                  className="text-xs hover:text-[#A8441A] underline underline-offset-4 py-2 transition-colors"
+                >
+                  Staf / Pemilik? Masuk Sistem &rarr;
+                </button>
+              )}
             </div>
           </div>
 
