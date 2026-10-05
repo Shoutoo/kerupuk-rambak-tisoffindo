@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { ShoppingBag, Heart, ShieldCheck, Lock } from 'lucide-react';
+import { ShieldCheck, Lock, MapPin, Phone } from 'lucide-react';
 import { APP_ASSETS } from '../../assets/images';
 
 export const PublicFooter: React.FC = () => {
@@ -10,15 +10,17 @@ export const PublicFooter: React.FC = () => {
   const address = companyProfile?.address || 'Kliwonan, RT.01/RW.07, Jeron, Kec. Nogosari, Kabupaten Boyolali, Jawa Tengah 57378';
   const phone = companyProfile?.phone || '0812-3456-7890';
   const gmapsUrl = companyProfile?.gmaps_url || 'https://maps.app.goo.gl/G8kHXoGYuuycJxxy7';
+  const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-stone-950 text-stone-400 py-12 border-t border-stone-800">
+    <footer style={{ backgroundColor: '#1C1917', color: '#FFFFFF', fontFamily: 'Urbanist, sans-serif' }} className="py-16 border-t border-stone-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          {/* Brand */}
-          <div className="md:col-span-2 space-y-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-lg overflow-hidden bg-white border border-amber-400/40 shrink-0">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
+
+          {/* Brand Column */}
+          <div className="md:col-span-2 space-y-4">
+            <div className="flex items-center gap-3">
+              <div style={{ borderColor: '#E0D6CA' }} className="w-10 h-10 rounded-[20px] overflow-hidden bg-white border shrink-0">
                 <img
                   src={APP_ASSETS.logo}
                   alt="Logo Tisoffindo"
@@ -26,77 +28,86 @@ export const PublicFooter: React.FC = () => {
                   referrerPolicy="no-referrer"
                 />
               </div>
-              <span className="text-lg font-bold text-white font-serif tracking-tight">
+              <span style={{ color: '#FFFFFF', fontFamily: 'Urbanist, sans-serif' }} className="text-lg font-bold tracking-tight">
                 {businessName}
               </span>
             </div>
-            <p className="text-xs text-stone-400 max-w-sm leading-relaxed">
+
+            <p style={{ color: '#8E857C' }} className="text-sm leading-relaxed max-w-sm">
               Sentra produksi dan penjualan kerupuk rambak kulit sapi dan kerbau khas Boyolali. Menjaga kualitas higienis, gurih alami, dan kerenyahan optimal tanpa bahan pengawet kimia.
             </p>
-            <p className="text-xs text-stone-400">
-              <strong className="text-stone-300">Pabrik & Toko:</strong> {address}
-            </p>
-            <p className="text-xs text-stone-400">
-              <strong className="text-stone-300">WhatsApp / Telp:</strong> {phone} (Buka 24 Jam)
-            </p>
-            <div className="flex items-center gap-3 text-xs text-stone-500 pt-1">
-              <div className="flex items-center gap-1 text-emerald-400">
+
+            <div className="space-y-2">
+              <div className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 mt-0.5 shrink-0" style={{ color: '#F2A054' }} />
+                <p style={{ color: '#8E857C' }} className="text-sm">{address}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 shrink-0" style={{ color: '#F2A054' }} />
+                <p style={{ color: '#8E857C' }} className="text-sm">{phone} <span style={{ color: '#5C554F' }}>(Buka 24 Jam)</span></p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 pt-1">
+              <div className="flex items-center gap-1.5" style={{ color: '#2F7D4F' }}>
                 <ShieldCheck className="w-4 h-4 shrink-0" />
-                <span>100% Kulit Halal & Teruji Higienis</span>
+                <span className="text-xs font-semibold">100% Halal &amp; Higienis</span>
               </div>
               <a
                 href={gmapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-amber-400 hover:underline"
+                style={{ color: '#F2A054' }}
+                className="text-xs font-semibold hover:underline"
               >
                 Google Maps (5.0 ★)
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Navigation */}
           <div>
-            <h5 className="text-xs font-bold uppercase tracking-wider text-stone-200 mb-3">Navigasi</h5>
-            <ul className="space-y-2 text-xs">
-              <li>
-                <a href="#beranda" className="hover:text-amber-400 transition-colors">Beranda</a>
-              </li>
-              <li>
-                <a href="#tentang" className="hover:text-amber-400 transition-colors">Tentang Kami</a>
-              </li>
-              <li>
-                <a href="#produk" className="hover:text-amber-400 transition-colors">Katalog Produk</a>
-              </li>
-              <li>
-                <a href="#galeri" className="hover:text-amber-400 transition-colors">Galeri Foto</a>
-              </li>
-              <li>
-                <a href="#kontak" className="hover:text-amber-400 transition-colors">Kontak & Pemesanan</a>
-              </li>
+            <h5 style={{ color: '#EDE3D6', letterSpacing: '0.08em' }} className="text-xs font-bold uppercase mb-4">Navigasi</h5>
+            <ul className="space-y-2">
+              {[
+                { href: '#beranda', label: 'Beranda' },
+                { href: '#tentang', label: 'Tentang Kami' },
+                { href: '#produk', label: 'Katalog Produk' },
+                { href: '#galeri', label: 'Galeri Foto' },
+                { href: '#kontak', label: 'Kontak & Pemesanan' },
+              ].map((item) => (
+                <li key={item.href}>
+                  <a href={item.href} style={{ color: '#8E857C' }} className="text-sm hover:text-[#F2A054] transition-colors">
+                    {item.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Akses Internal */}
+          {/* Portal Internal */}
           <div>
-            <h5 className="text-xs font-bold uppercase tracking-wider text-stone-200 mb-3">Portal Toko</h5>
-            <p className="text-xs text-stone-400 mb-3 leading-relaxed">
-              Khusus Petugas Kasir dan Pemilik Usaha untuk pencatatan penjualan dan stok:
+            <h5 style={{ color: '#EDE3D6', letterSpacing: '0.08em' }} className="text-xs font-bold uppercase mb-4">Portal Toko</h5>
+            <p style={{ color: '#8E857C' }} className="text-sm mb-4 leading-relaxed">
+              Khusus Petugas Kasir dan Pemilik Usaha untuk pencatatan penjualan dan stok.
             </p>
             <button
               onClick={() => setCurrentView('login')}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-stone-850 hover:bg-stone-800 border border-stone-700 text-xs text-amber-400 font-semibold transition-colors"
+              style={{ backgroundColor: '#2A2420', borderColor: '#3A302A', color: '#F2A054', fontFamily: 'Urbanist, sans-serif' }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-bold hover:bg-[#3A302A] transition-colors"
             >
               <Lock className="w-3.5 h-3.5" />
-              <span>Login Sistem Internal</span>
+              Login Sistem Internal
             </button>
           </div>
         </div>
 
-        <div className="pt-8 border-t border-stone-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
-          <p>© 2026 Tisoffindo Kerupuk Rambak. Seluruh hak cipta dilindungi undang-undang.</p>
-          <p className="flex items-center gap-1">
-            Dibuat untuk usaha UMKM Kerupuk Rambak Indonesia
+        <div style={{ borderColor: '#2A2420' }} className="pt-8 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p style={{ color: '#5C554F' }} className="text-xs">
+            © {year} Tisoffindo Kerupuk Rambak. Seluruh hak cipta dilindungi undang-undang.
+          </p>
+          <p style={{ color: '#5C554F' }} className="text-xs">
+            Dibuat untuk UMKM Kerupuk Rambak Indonesia
           </p>
         </div>
       </div>

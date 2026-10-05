@@ -22,7 +22,6 @@ import { StockMovementView } from './components/internal/StockMovementView';
 import { SalesHistoryView } from './components/internal/SalesHistoryView';
 import { ReportsView } from './components/internal/ReportsView';
 import { UsersView } from './components/internal/UsersView';
-import { SupabaseConfigView } from './components/internal/SupabaseConfigView';
 import { CompanyProfileSettingsView } from './components/internal/CompanyProfileSettingsView';
 import { ReceiptModal } from './components/internal/ReceiptModal';
 
@@ -75,8 +74,6 @@ const AppContent: React.FC = () => {
         return currentUser.role === 'admin' ? <UsersView /> : <DashboardView />;
       case 'company_profile_settings':
         return currentUser.role === 'admin' ? <CompanyProfileSettingsView /> : <DashboardView />;
-      case 'supabase_sql':
-        return currentUser.role === 'admin' ? <SupabaseConfigView /> : <DashboardView />;
       default:
         return <DashboardView />;
     }

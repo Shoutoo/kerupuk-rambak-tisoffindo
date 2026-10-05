@@ -9,7 +9,6 @@ import {
   Receipt,
   BarChart3,
   Users,
-  Database,
   Building2,
   LogOut,
   Globe,
@@ -18,9 +17,7 @@ import {
   X,
   Shield,
   UserCheck,
-  ChevronRight,
   AlertTriangle,
-  RotateCcw,
 } from 'lucide-react';
 
 interface InternalLayoutProps {
@@ -103,14 +100,6 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
       roles: ['admin'],
       badge: 'Website',
       badgeColor: 'bg-amber-100 text-amber-900',
-    },
-    {
-      id: 'supabase_sql',
-      label: 'Skema Supabase (SQL)',
-      icon: Database,
-      roles: ['admin'],
-      badge: 'PRD',
-      badgeColor: 'bg-emerald-100 text-emerald-900',
     },
   ];
 
@@ -302,30 +291,6 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
                 </button>
               );
             })}
-          </div>
-
-          {/* Quick Demo Reset / Diagnostic Box */}
-          <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-amber-950">Mode Simulasi Supabase</span>
-              <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold">
-                Aktif
-              </span>
-            </div>
-            <p className="text-[11px] text-amber-900/80 leading-relaxed">
-              Data penjualan dan mutasi stok tersimpan di browser. Anda dapat mereset data ke demo awal kapan saja.
-            </p>
-            <button
-              onClick={() => {
-                if (window.confirm('Reset semua data transaksi dan stok kembali ke default demo?')) {
-                  resetToInitialData();
-                }
-              }}
-              className="w-full mt-1 py-1.5 px-2 rounded-lg bg-white border border-amber-300 text-amber-900 font-semibold hover:bg-amber-100 transition-colors flex items-center justify-center gap-1.5"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset Data Demo</span>
-            </button>
           </div>
         </aside>
 

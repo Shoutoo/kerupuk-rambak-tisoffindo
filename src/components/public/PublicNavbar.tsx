@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ShoppingBag, LogIn, Menu, X, PhoneCall, ShieldCheck, UserCheck } from 'lucide-react';
+import { LogIn, Menu, X, UserCheck } from 'lucide-react';
 import { APP_ASSETS } from '../../assets/images';
 
 export const PublicNavbar: React.FC = () => {
-  const { setCurrentView, currentUser, logout, quickLogin, companyProfile } = useApp();
+  const { setCurrentView, currentUser, logout, companyProfile } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const scrollToSection = (id: string) => {
@@ -16,9 +16,13 @@ export const PublicNavbar: React.FC = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
+    <nav
+      style={{ backgroundColor: '#F4EFE9', borderBottomColor: '#E0D6CA' }}
+      className="sticky top-0 z-40 border-b backdrop-blur-md shadow-sm"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-[72px]">
+
           {/* Logo & Brand */}
           <div
             onClick={() => {
@@ -27,7 +31,10 @@ export const PublicNavbar: React.FC = () => {
             }}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform duration-300 border border-amber-200/80 bg-white shrink-0">
+            <div
+              style={{ borderColor: '#E0D6CA' }}
+              className="w-11 h-11 rounded-[20px] overflow-hidden shadow-md border bg-white shrink-0 group-hover:scale-105 transition-transform duration-300"
+            >
               <img
                 src={APP_ASSETS.logo}
                 alt="Logo Tisoffindo"
@@ -37,96 +44,94 @@ export const PublicNavbar: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xl font-bold tracking-tight text-stone-900 font-serif">
+                <span
+                  style={{ color: '#1C1917', fontFamily: 'Urbanist, sans-serif' }}
+                  className="text-xl font-bold tracking-tight"
+                >
                   Tisoffindo
                 </span>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                <span
+                  style={{ backgroundColor: '#EDE3D6', color: '#3A2618' }}
+                  className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
+                >
                   Boyolali
                 </span>
               </div>
-              <p className="text-xs text-stone-500 font-medium hidden sm:block">
-                Pabrik & Sentra Kerupuk Rambak Sapi Asli Gurih
+              <p style={{ color: '#8E857C', fontFamily: 'Urbanist, sans-serif' }} className="text-xs font-medium hidden sm:block">
+                Pabrik &amp; Sentra Kerupuk Rambak Sapi Asli
               </p>
             </div>
           </div>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
-            <button
-              onClick={() => scrollToSection('beranda')}
-              className="text-sm font-medium text-stone-700 hover:text-amber-600 transition-colors"
-            >
-              Beranda
-            </button>
-            <button
-              onClick={() => scrollToSection('tentang')}
-              className="text-sm font-medium text-stone-700 hover:text-amber-600 transition-colors"
-            >
-              Tentang Kami
-            </button>
-            <button
-              onClick={() => scrollToSection('produk')}
-              className="text-sm font-medium text-stone-700 hover:text-amber-600 transition-colors"
-            >
-              Katalog Produk
-            </button>
-            <button
-              onClick={() => scrollToSection('galeri')}
-              className="text-sm font-medium text-stone-700 hover:text-amber-600 transition-colors"
-            >
-              Galeri & Testimoni
-            </button>
-            <button
-              onClick={() => scrollToSection('kontak')}
-              className="text-sm font-medium text-stone-700 hover:text-amber-600 transition-colors"
-            >
-              Lokasi & Kontak
-            </button>
+          <div className="hidden lg:flex items-center gap-7">
+            {['beranda', 'tentang', 'produk', 'galeri', 'kontak'].map((section) => {
+              const labels: Record<string, string> = {
+                beranda: 'Beranda',
+                tentang: 'Tentang Kami',
+                produk: 'Katalog Produk',
+                galeri: 'Galeri',
+                kontak: 'Kontak',
+              };
+              return (
+                <button
+                  key={section}
+                  onClick={() => scrollToSection(section)}
+                  style={{ color: '#5C554F', fontFamily: 'Urbanist, sans-serif' }}
+                  className="text-sm font-semibold hover:text-[#A8441A] transition-colors"
+                >
+                  {labels[section]}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Action: Portal Internal / Login */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* CTA: Login / Dashboard */}
+          <div className="hidden md:flex items-center gap-2">
             {currentUser ? (
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setCurrentView('dashboard')}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold shadow-xs transition-colors"
+                  style={{ backgroundColor: '#F2A054', color: '#2A1405', fontFamily: 'Urbanist, sans-serif' }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold shadow-sm hover:bg-[#E88D3A] transition-colors"
                 >
                   <UserCheck className="w-4 h-4" />
                   Dashboard ({currentUser.role === 'admin' ? 'Admin' : 'Petugas'})
                 </button>
                 <button
                   onClick={logout}
-                  className="px-3 py-2 rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-100 text-sm font-medium transition-colors"
+                  style={{ color: '#5C554F', borderColor: '#E0D6CA', fontFamily: 'Urbanist, sans-serif' }}
+                  className="px-3 py-2 rounded-full border text-sm font-medium hover:bg-[#EDE3D6] transition-colors"
                 >
                   Keluar
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setCurrentView('login')}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-white text-sm font-semibold shadow-xs transition-all hover:shadow-md"
-                >
-                  <LogIn className="w-4 h-4 text-amber-400" />
-                  Masuk Sistem
-                </button>
-              </div>
+              <button
+                onClick={() => setCurrentView('login')}
+                style={{ backgroundColor: '#1C1917', color: '#FFFFFF', fontFamily: 'Urbanist, sans-serif' }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold shadow-sm hover:bg-[#A8441A] transition-colors"
+              >
+                <LogIn className="w-4 h-4 text-[#F2A054]" />
+                Masuk Sistem
+              </button>
             )}
           </div>
 
-          {/* Mobile menu trigger */}
+          {/* Mobile trigger */}
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={() => setCurrentView('login')}
-              className="p-2 rounded-lg bg-stone-900 text-white text-xs font-semibold flex items-center gap-1.5"
+              style={{ backgroundColor: '#1C1917', color: '#FFFFFF' }}
+              className="p-2 rounded-full text-xs font-semibold flex items-center gap-1.5"
             >
-              <LogIn className="w-3.5 h-3.5 text-amber-400" />
+              <LogIn className="w-3.5 h-3.5 text-[#F2A054]" />
               Login
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-stone-700 hover:bg-stone-100"
+              style={{ color: '#1C1917' }}
+              className="p-2 rounded-[20px] hover:bg-[#EDE3D6] transition-colors"
               aria-label="Buka Menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -137,51 +142,39 @@ export const PublicNavbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-stone-200 bg-white px-4 pt-2 pb-6 space-y-3">
-          <button
-            onClick={() => scrollToSection('beranda')}
-            className="block w-full text-left py-2 text-stone-800 font-medium hover:text-amber-600"
-          >
-            Beranda
-          </button>
-          <button
-            onClick={() => scrollToSection('tentang')}
-            className="block w-full text-left py-2 text-stone-800 font-medium hover:text-amber-600"
-          >
-            Tentang Kami
-          </button>
-          <button
-            onClick={() => scrollToSection('produk')}
-            className="block w-full text-left py-2 text-stone-800 font-medium hover:text-amber-600"
-          >
-            Katalog Produk
-          </button>
-          <button
-            onClick={() => scrollToSection('galeri')}
-            className="block w-full text-left py-2 text-stone-800 font-medium hover:text-amber-600"
-          >
-            Galeri
-          </button>
-          <button
-            onClick={() => scrollToSection('kontak')}
-            className="block w-full text-left py-2 text-stone-800 font-medium hover:text-amber-600"
-          >
-            Kontak & Pemesanan
-          </button>
-          <div className="pt-3 border-t border-stone-100 flex flex-col gap-2">
+        <div style={{ backgroundColor: '#F4EFE9', borderColor: '#E0D6CA' }} className="md:hidden border-b px-4 pt-2 pb-6 space-y-1">
+          {[
+            { id: 'beranda', label: 'Beranda' },
+            { id: 'tentang', label: 'Tentang Kami' },
+            { id: 'produk', label: 'Katalog Produk' },
+            { id: 'galeri', label: 'Galeri' },
+            { id: 'kontak', label: 'Kontak & Pemesanan' },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => scrollToSection(item.id)}
+              style={{ color: '#1C1917', fontFamily: 'Urbanist, sans-serif' }}
+              className="block w-full text-left py-2.5 text-sm font-semibold hover:text-[#A8441A] transition-colors"
+            >
+              {item.label}
+            </button>
+          ))}
+          <div className="pt-3" style={{ borderTop: '1px solid #E0D6CA' }}>
             {currentUser ? (
               <button
                 onClick={() => setCurrentView('dashboard')}
-                className="w-full py-2.5 rounded-lg bg-amber-600 text-white text-center font-medium"
+                style={{ backgroundColor: '#F2A054', color: '#2A1405', fontFamily: 'Urbanist, sans-serif' }}
+                className="w-full py-2.5 rounded-full text-center font-bold text-sm"
               >
-                Masuk ke Dashboard ({currentUser.role})
+                Dashboard ({currentUser.role})
               </button>
             ) : (
               <button
                 onClick={() => setCurrentView('login')}
-                className="w-full py-2.5 rounded-lg bg-stone-900 text-white text-center font-medium flex items-center justify-center gap-2"
+                style={{ backgroundColor: '#1C1917', color: '#FFFFFF', fontFamily: 'Urbanist, sans-serif' }}
+                className="w-full py-2.5 rounded-full text-center font-bold text-sm flex items-center justify-center gap-2"
               >
-                <LogIn className="w-4 h-4 text-amber-400" />
+                <LogIn className="w-4 h-4 text-[#F2A054]" />
                 Masuk Sistem (Admin / Petugas)
               </button>
             )}

@@ -21,9 +21,10 @@ export const DashboardView: React.FC = () => {
   if (!currentUser) return null;
   const isAdmin = currentUser.role === 'admin';
 
-  // Current Date helpers (2026-09-22)
-  const todayStr = '2026-09-22';
-  const currentMonthStr = '2026-09';
+  // Current Date helpers (dynamic)
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const currentMonthStr = now.toISOString().slice(0, 7);
 
   // Filter sales based on user role
   const relevantSales = isAdmin ? sales : sales.filter((s) => s.created_by_id === currentUser.id);
@@ -64,16 +65,20 @@ export const DashboardView: React.FC = () => {
     .sort((a, b) => b.qty - a.qty)
     .slice(0, 5);
 
-  // Last 7 days trend bar simulation
-  const last7Days = [
-    { date: '16 Sep', day: 'Rab', revenue: 380000 },
-    { date: '17 Sep', day: 'Kam', revenue: 490000 },
-    { date: '18 Sep', day: 'Jum', revenue: 540000 },
-    { date: '19 Sep', day: 'Sab', revenue: 780000 },
-    { date: '20 Sep', day: 'Min', revenue: 650000 },
-    { date: '21 Sep', day: 'Sen', revenue: 395000 },
-    { date: '22 Sep', day: 'Sel', revenue: totalOmzetToday || 443000 },
-  ];
+  // Last 7 days trend bar - dynamic from actual sales data
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() - (6 - i));
+    const dateStr = d.toISOString().slice(0, 10);
+    const dayRevenue = relevantSales
+      .filter((s) => s.status === 'completed' && s.created_at.startsWith(dateStr))
+      .reduce((acc, s) => acc + s.total_amount, 0);
+    return {
+      date: d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
+      day: d.toLocaleDateString('id-ID', { weekday: 'short' }).slice(0, 3),
+      revenue: dayRevenue,
+    };
+  });
   const maxRevenue = Math.max(...last7Days.map((d) => d.revenue));
 
   return (
@@ -87,7 +92,7 @@ export const DashboardView: React.FC = () => {
               Peran: {currentUser.role}
             </span>
             <span className="text-xs text-stone-400">|</span>
-            <span className="text-xs text-stone-500 font-medium">Selasa, 22 September 2026</span>
+            <span className="text-xs text-stone-500 font-medium">{now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold font-serif text-stone-900">
             Selamat Datang, {currentUser.full_name}!
