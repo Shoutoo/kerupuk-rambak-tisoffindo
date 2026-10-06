@@ -173,10 +173,26 @@ export const INITIAL_USERS: User[] = [
   },
 ];
 
+// Helper to generate dynamic recent dates relative to runtime
+const getDynamicDate = (daysAgo: number, hours: number, minutes: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  d.setHours(hours, minutes, 0, 0);
+  return d.toISOString();
+};
+
+const getDynamicInvoiceNo = (daysAgo: number, seq: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  const dateStr = d.toISOString().slice(0, 10).replace(/-/g, '');
+  return `INV-${dateStr}-${String(seq).padStart(3, '0')}`;
+};
+
 export const INITIAL_SALES: Sale[] = [
+  // Hari Ini (0 days ago)
   {
     id: 'sale-001',
-    invoice_no: 'INV-20260920-001',
+    invoice_no: getDynamicInvoiceNo(0, 1),
     customer_name: 'Ibu Ratna (Resto Padang Sejahtera)',
     total_amount: 152000,
     payment_method: 'Transfer Bank BCA',
@@ -184,7 +200,7 @@ export const INITIAL_SALES: Sale[] = [
     created_by_id: 'usr-petugas-1',
     created_by_name: 'Siti Rahmawati',
     created_by_role: 'petugas',
-    created_at: '2026-09-20T10:15:00Z',
+    created_at: getDynamicDate(0, 10, 15),
     items: [
       {
         id: 'item-001',
@@ -199,7 +215,7 @@ export const INITIAL_SALES: Sale[] = [
   },
   {
     id: 'sale-002',
-    invoice_no: 'INV-20260921-002',
+    invoice_no: getDynamicInvoiceNo(0, 2),
     customer_name: 'Pak Hendro (Pelanggan Toko)',
     total_amount: 144000,
     payment_method: 'Tunai',
@@ -209,30 +225,32 @@ export const INITIAL_SALES: Sale[] = [
     created_by_id: 'usr-petugas-2',
     created_by_name: 'Ahmad Fauzi',
     created_by_role: 'petugas',
-    created_at: '2026-09-21T13:40:00Z',
+    created_at: getDynamicDate(0, 14, 40),
     items: [
       {
         id: 'item-002',
         product_id: 'prod-2',
-        product_name: 'Kerupuk Rambak Sapi Kemasan Pouch (500g)',
-        unit: 'pouch',
+        product_name: 'Kerupuk Rambak Sapi Kemasan Jumbo (500g)',
+        unit: 'bungkus',
         quantity: 2,
         price: 72000,
         subtotal: 144000,
       },
     ],
   },
+
+  // Kemarin (1 day ago)
   {
     id: 'sale-003',
-    invoice_no: 'INV-20260921-003',
-    customer_name: 'Mbak Cindy',
-    total_amount: 107000,
+    invoice_no: getDynamicInvoiceNo(1, 1),
+    customer_name: 'Mbak Cindy (Oleh-Oleh)',
+    total_amount: 180000,
     payment_method: 'Transfer QRIS',
     status: 'completed',
     created_by_id: 'usr-petugas-1',
     created_by_name: 'Siti Rahmawati',
     created_by_role: 'petugas',
-    created_at: '2026-09-21T16:20:00Z',
+    created_at: getDynamicDate(1, 11, 20),
     items: [
       {
         id: 'item-003',
@@ -245,18 +263,18 @@ export const INITIAL_SALES: Sale[] = [
       },
       {
         id: 'item-004',
-        product_id: 'prod-5',
-        product_name: 'Rambak Sapi Balado Spesial (200g)',
+        product_id: 'prod-3',
+        product_name: 'Rambak Kulit Kerbau Asli Istimewa (250g)',
         unit: 'bungkus',
-        quantity: 1,
-        price: 35000,
-        subtotal: 35000,
+        quantity: 2,
+        price: 45000,
+        subtotal: 90000,
       },
     ],
   },
   {
     id: 'sale-004',
-    invoice_no: 'INV-20260922-004',
+    invoice_no: getDynamicInvoiceNo(1, 2),
     customer_name: 'Pak Tri Cahyono (Wisatawan)',
     total_amount: 253000,
     payment_method: 'Tunai',
@@ -266,7 +284,7 @@ export const INITIAL_SALES: Sale[] = [
     created_by_id: 'usr-admin-1',
     created_by_name: 'Bambang Setiawan',
     created_by_role: 'admin',
-    created_at: '2026-09-22T08:30:00Z',
+    created_at: getDynamicDate(1, 16, 30),
     items: [
       {
         id: 'item-005',
@@ -288,26 +306,166 @@ export const INITIAL_SALES: Sale[] = [
       },
     ],
   },
+
+  // 2 Hari Lalu (2 days ago - Puncak Penjualan)
   {
     id: 'sale-005',
-    invoice_no: 'INV-20260922-005',
+    invoice_no: getDynamicInvoiceNo(2, 1),
     customer_name: 'Warung Soto Bu Hj. Nur',
-    total_amount: 190000,
+    total_amount: 285000,
     payment_method: 'Transfer QRIS',
     status: 'completed',
     created_by_id: 'usr-petugas-1',
     created_by_name: 'Siti Rahmawati',
     created_by_role: 'petugas',
-    created_at: '2026-09-22T09:45:00Z',
+    created_at: getDynamicDate(2, 9, 45),
     items: [
       {
         id: 'item-007',
         product_id: 'prod-6',
         product_name: 'Krecek Kulit Sapi Mentah Siap Goreng (1 Kg)',
         unit: 'kg',
+        quantity: 3,
+        price: 95000,
+        subtotal: 285000,
+      },
+    ],
+  },
+  {
+    id: 'sale-006',
+    invoice_no: getDynamicInvoiceNo(2, 2),
+    customer_name: 'Keluarga Bpk. Santoso',
+    total_amount: 190000,
+    payment_method: 'Tunai',
+    cash_given: 200000,
+    cash_change: 10000,
+    status: 'completed',
+    created_by_id: 'usr-petugas-2',
+    created_by_name: 'Ahmad Fauzi',
+    created_by_role: 'petugas',
+    created_at: getDynamicDate(2, 15, 20),
+    items: [
+      {
+        id: 'item-008',
+        product_id: 'prod-1',
+        product_name: 'Kerupuk Rambak Sapi Super Gurih (250g)',
+        unit: 'bungkus',
+        quantity: 5,
+        price: 38000,
+        subtotal: 190000,
+      },
+    ],
+  },
+
+  // 3 Hari Lalu (3 days ago)
+  {
+    id: 'sale-007',
+    invoice_no: getDynamicInvoiceNo(3, 1),
+    customer_name: 'Ibu Hani Catering',
+    total_amount: 228000,
+    payment_method: 'Transfer Bank BCA',
+    status: 'completed',
+    created_by_id: 'usr-petugas-1',
+    created_by_name: 'Siti Rahmawati',
+    created_by_role: 'petugas',
+    created_at: getDynamicDate(3, 13, 10),
+    items: [
+      {
+        id: 'item-009',
+        product_id: 'prod-1',
+        product_name: 'Kerupuk Rambak Sapi Super Gurih (250g)',
+        unit: 'bungkus',
+        quantity: 6,
+        price: 38000,
+        subtotal: 228000,
+      },
+    ],
+  },
+
+  // 4 Hari Lalu (4 days ago)
+  {
+    id: 'sale-008',
+    invoice_no: getDynamicInvoiceNo(4, 1),
+    customer_name: 'Pak Joko Rawon',
+    total_amount: 325000,
+    payment_method: 'Tunai',
+    cash_given: 350000,
+    cash_change: 25000,
+    status: 'completed',
+    created_by_id: 'usr-admin-1',
+    created_by_name: 'Bambang Setiawan',
+    created_by_role: 'admin',
+    created_at: getDynamicDate(4, 10, 30),
+    items: [
+      {
+        id: 'item-010',
+        product_id: 'prod-2',
+        product_name: 'Kerupuk Rambak Sapi Kemasan Jumbo (500g)',
+        unit: 'bungkus',
+        quantity: 4,
+        price: 72000,
+        subtotal: 288000,
+      },
+      {
+        id: 'item-011',
+        product_id: 'prod-5',
+        product_name: 'Rambak Sapi Balado Spesial (200g)',
+        unit: 'bungkus',
+        quantity: 1,
+        price: 35000,
+        subtotal: 35000,
+      },
+    ],
+  },
+
+  // 5 Hari Lalu (5 days ago)
+  {
+    id: 'sale-009',
+    invoice_no: getDynamicInvoiceNo(5, 1),
+    customer_name: 'Toko Camilan Barokah',
+    total_amount: 190000,
+    payment_method: 'Transfer QRIS',
+    status: 'completed',
+    created_by_id: 'usr-petugas-2',
+    created_by_name: 'Ahmad Fauzi',
+    created_by_role: 'petugas',
+    created_at: getDynamicDate(5, 14, 15),
+    items: [
+      {
+        id: 'item-012',
+        product_id: 'prod-6',
+        product_name: 'Krecek Kulit Sapi Mentah Siap Goreng (1 Kg)',
+        unit: 'kg',
         quantity: 2,
         price: 95000,
         subtotal: 190000,
+      },
+    ],
+  },
+
+  // 6 Hari Lalu (6 days ago)
+  {
+    id: 'sale-010',
+    invoice_no: getDynamicInvoiceNo(6, 1),
+    customer_name: 'Ibu Maya Sekeluarga',
+    total_amount: 216000,
+    payment_method: 'Tunai',
+    cash_given: 250000,
+    cash_change: 34000,
+    status: 'completed',
+    created_by_id: 'usr-petugas-1',
+    created_by_name: 'Siti Rahmawati',
+    created_by_role: 'petugas',
+    created_at: getDynamicDate(6, 16, 40),
+    items: [
+      {
+        id: 'item-013',
+        product_id: 'prod-2',
+        product_name: 'Kerupuk Rambak Sapi Kemasan Jumbo (500g)',
+        unit: 'bungkus',
+        quantity: 3,
+        price: 72000,
+        subtotal: 216000,
       },
     ],
   },

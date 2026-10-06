@@ -109,7 +109,7 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
     <div className="min-h-screen bg-stone-100/90 flex flex-col w-full overflow-x-hidden">
       {/* Top Header */}
       <header className="sticky top-0 z-30 bg-white border-b border-stone-200/90 shadow-2xs">
-        <div className="px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+        <div className="max-w-[1600px] w-full mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
           {/* Left: Mobile trigger & App Name */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
@@ -254,7 +254,7 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
       </header>
 
       {/* Main App Container with Sidebar & Content */}
-      <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex gap-6 pb-24 lg:pb-8">
+      <div className="flex-1 max-w-[1600px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex gap-6 pb-24 lg:pb-8">
         {/* Desktop Sidebar Navigation */}
         <aside className="hidden lg:block w-64 shrink-0 space-y-6">
           <div className="bg-white rounded-2xl border border-stone-200/90 p-3 shadow-2xs space-y-1">

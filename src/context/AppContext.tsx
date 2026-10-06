@@ -167,7 +167,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [sales, setSales] = useState<Sale[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SALES);
-      return saved ? JSON.parse(saved) : INITIAL_SALES;
+      if (!saved) return INITIAL_SALES;
+      const parsed: Sale[] = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // If all saved sales are older than 7 days, refresh with dynamic INITIAL_SALES so the dashboard graph stays active
+        const hasRecentSale = parsed.some((s) => {
+          const diffDays = (Date.now() - new Date(s.created_at).getTime()) / (1000 * 60 * 60 * 24);
+          return diffDays <= 7;
+        });
+        if (!hasRecentSale) {
+          localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(INITIAL_SALES));
+          return INITIAL_SALES;
+        }
+        return parsed;
+      }
+      return INITIAL_SALES;
     } catch {
       return INITIAL_SALES;
     }
