@@ -16,6 +16,9 @@ import {
   Clock,
   Sparkles,
   CheckCircle2,
+  RefreshCw,
+  X,
+  Filter,
 } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
@@ -30,6 +33,8 @@ export const DashboardView: React.FC = () => {
   } = useApp();
 
   const [hoveredDayIndex, setHoveredDayIndex] = useState<number | null>(null);
+  const [timeframe, setTimeframe] = useState<'7d' | 'month'>('7d');
+  const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
 
   if (!currentUser) return null;
   const isAdmin = currentUser.role === 'admin';
@@ -89,10 +94,12 @@ export const DashboardView: React.FC = () => {
 
   const maxTopSellingQty = topSellingProducts.length > 0 ? topSellingProducts[0].qty : 1;
 
-  // 7-Day Trend Dynamic Calculation
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
+  // Dynamic Chart Points Generation (supports 7d vs 14d)
+  const daysCount = timeframe === '7d' ? 7 : 14;
+
+  const rawTrendDays = Array.from({ length: daysCount }, (_, i) => {
     const d = new Date(now);
-    d.setDate(d.getDate() - (6 - i));
+    d.setDate(d.getDate() - (daysCount - 1 - i));
     const dateStr = d.toISOString().slice(0, 10);
     const daySales = relevantSales.filter(
       (s) => s.status === 'completed' && s.created_at.startsWith(dateStr)
@@ -113,19 +120,19 @@ export const DashboardView: React.FC = () => {
     };
   });
 
-  // Resilience check: if current calendar window has no sales, anchor to the latest recorded sale date
-  const hasAnyRevenueIn7Days = last7Days.some((d) => d.revenue > 0);
-  const effective7Days = hasAnyRevenueIn7Days
-    ? last7Days
+  // Resilience: Anchor to latest sale if current calendar window has zero sales
+  const hasAnyRevenue = rawTrendDays.some((d) => d.revenue > 0);
+  const trendDays = hasAnyRevenue
+    ? rawTrendDays
     : (() => {
-        if (relevantSales.length === 0) return last7Days;
+        if (relevantSales.length === 0) return rawTrendDays;
         const sortedSales = [...relevantSales].sort(
           (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
         const anchorDate = new Date(sortedSales[0].created_at);
-        return Array.from({ length: 7 }, (_, i) => {
+        return Array.from({ length: daysCount }, (_, i) => {
           const d = new Date(anchorDate);
-          d.setDate(d.getDate() - (6 - i));
+          d.setDate(d.getDate() - (daysCount - 1 - i));
           const dateStr = d.toISOString().slice(0, 10);
           const daySales = relevantSales.filter(
             (s) => s.status === 'completed' && s.created_at.startsWith(dateStr)
@@ -147,29 +154,29 @@ export const DashboardView: React.FC = () => {
         });
       })();
 
-  const maxRevenue = Math.max(100000, ...effective7Days.map((d) => d.revenue));
-  const avgRevenue = Math.round(effective7Days.reduce((acc, d) => acc + d.revenue, 0) / 7);
-  const total7DayRevenue = effective7Days.reduce((acc, d) => acc + d.revenue, 0);
-  const total7DayTrx = effective7Days.reduce((acc, d) => acc + d.trxCount, 0);
-  const peakDay = effective7Days.reduce(
+  const maxRevenue = Math.max(100000, ...trendDays.map((d) => d.revenue));
+  const avgRevenue = Math.round(trendDays.reduce((acc, d) => acc + d.revenue, 0) / trendDays.length);
+  const totalPeriodRevenue = trendDays.reduce((acc, d) => acc + d.revenue, 0);
+  const totalPeriodTrx = trendDays.reduce((acc, d) => acc + d.trxCount, 0);
+  const peakDay = trendDays.reduce(
     (prev, curr) => (curr.revenue > prev.revenue ? curr : prev),
-    effective7Days[0]
+    trendDays[0]
   );
 
-  // SVG Area Chart Geometry (WattVision: Gráfico de área con líneas de grid sutiles)
-  const svgWidth = 760;
-  const svgHeight = 260;
-  const paddingLeft = 65;
+  // SVG Area Chart Geometry (Optimized padding to prevent any clipping)
+  const svgWidth = 800;
+  const svgHeight = 280;
+  const paddingLeft = 72;
   const paddingRight = 40;
-  const paddingTop = 35;
-  const paddingBottom = 55;
+  const paddingTop = 44; // Ample headroom for peak badges & tooltips
+  const paddingBottom = 54;
 
   const chartWidth = svgWidth - paddingLeft - paddingRight;
   const chartHeight = svgHeight - paddingTop - paddingBottom;
   const yBaseline = paddingTop + chartHeight;
 
-  const chartPoints = effective7Days.map((item, idx) => {
-    const x = paddingLeft + (idx * chartWidth) / (effective7Days.length - 1);
+  const chartPoints = trendDays.map((item, idx) => {
+    const x = paddingLeft + (idx * chartWidth) / (trendDays.length - 1);
     const ratio = maxRevenue > 0 ? item.revenue / maxRevenue : 0;
     const y = yBaseline - ratio * chartHeight;
     return { x, y, ...item, idx };
@@ -188,27 +195,28 @@ export const DashboardView: React.FC = () => {
   // Grid steps (100%, 75%, 50%, 25%, 0%)
   const gridSteps = [1, 0.75, 0.5, 0.25, 0];
 
+  // Filter sales for the table if a day was clicked on the chart
+  const displayedSales = selectedDateFilter
+    ? relevantSales.filter((s) => s.created_at.startsWith(selectedDateFilter))
+    : relevantSales;
+
   return (
     <div className="space-y-6 w-full">
-      {/* 0. Executive Control Header Bar (WattVision Section 1: Confiabilidad técnica y control) */}
+      {/* 0. Executive Control Header Bar */}
       <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-950 uppercase tracking-wide">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Telemetri Sistem Tisoffindo
-            </span>
-            <span className="text-xs text-stone-300">|</span>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 capitalize flex items-center gap-1">
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 capitalize flex items-center gap-1.5 border border-stone-200/70">
               {isAdmin ? (
                 <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
               ) : (
                 <UserCheck className="w-3.5 h-3.5 text-stone-700" />
               )}
-              Peran: {currentUser.role}
+              {currentUser.full_name} ({currentUser.role})
             </span>
             <span className="text-xs text-stone-300">|</span>
-            <span className="text-xs text-stone-500 font-medium">
+            <span className="text-xs text-stone-500 font-medium flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5 text-stone-400" />
               {now.toLocaleDateString('id-ID', {
                 weekday: 'long',
                 day: 'numeric',
@@ -221,7 +229,7 @@ export const DashboardView: React.FC = () => {
           <h2 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
             Dashboard Kontrol Penjualan & Inventaris
           </h2>
-          <p className="text-xs sm:text-sm text-stone-500 mt-1 max-w-2xl">
+          <p className="text-xs sm:text-sm text-stone-500 mt-0.5 max-w-2xl">
             {isAdmin
               ? 'Monitoring real-time omzet harian, deteksi ambang batas stok gudang, dan aktivitas kasir toko Tisoffindo.'
               : 'Pusat operasional kasir, pemantauan transaksi harian, dan pencatatan penjualan kerupuk rambak.'}
@@ -240,8 +248,8 @@ export const DashboardView: React.FC = () => {
         </div>
       </div>
 
-      {/* 1. Top Section: Exactly 3-Column KPI Grid (WattVision Section 5: Vista de 3 columnas KPI en la parte superior) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* 1. Top Section: Exactly 3-Column KPI Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* KPI 1: Omzet Hari Ini */}
         <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
@@ -254,7 +262,7 @@ export const DashboardView: React.FC = () => {
           </div>
 
           <div className="my-3">
-            <p className="text-3xl font-mono font-bold tracking-tight text-stone-900">
+            <p className="text-2xl sm:text-3xl font-mono font-bold tracking-tight text-stone-900 break-words">
               Rp {totalOmzetToday.toLocaleString('id-ID')}
             </p>
           </div>
@@ -284,7 +292,7 @@ export const DashboardView: React.FC = () => {
           </div>
 
           <div className="my-3">
-            <p className="text-3xl font-mono font-bold tracking-tight text-stone-900">
+            <p className="text-2xl sm:text-3xl font-mono font-bold tracking-tight text-stone-900 break-words">
               Rp {totalOmzetMonth.toLocaleString('id-ID')}
             </p>
           </div>
@@ -301,7 +309,7 @@ export const DashboardView: React.FC = () => {
         </div>
 
         {/* KPI 3: Volume Penjualan Hari Ini */}
-        <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col justify-between sm:col-span-2 lg:col-span-1">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
               Volume Penjualan Hari Ini
@@ -312,7 +320,7 @@ export const DashboardView: React.FC = () => {
           </div>
 
           <div className="my-3">
-            <p className="text-3xl font-mono font-bold tracking-tight text-stone-900">
+            <p className="text-2xl sm:text-3xl font-mono font-bold tracking-tight text-stone-900">
               {totalItemsSoldToday}{' '}
               <span className="text-base font-normal font-sans text-stone-500">bungkus</span>
             </p>
@@ -330,44 +338,89 @@ export const DashboardView: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Middle Section: 12-Column Grid (WattVision: Gráfico principal 8 cols + Panel Alertas 4 cols en lateral derecho) */}
+      {/* 2. Middle Section: 12-Column Grid (8 Columns Chart + 4 Columns Alert Panel) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Main Chart Column (8 Columns - Full Width Area Chart) */}
+        {/* Main Chart Column (8 Columns - Interactive Dynamic Area Chart) */}
         <div className="lg:col-span-8 bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs space-y-4">
-          {/* Chart Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-stone-100">
+          {/* Chart Header & Interactive Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
             <div>
-              <h3 className="text-lg font-bold text-stone-900 tracking-tight flex items-center gap-2">
-                <Activity className="w-5 h-5 text-amber-600" />
-                Tren Omzet Penjualan (7 Hari Terakhir)
-              </h3>
+              <div className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-amber-600 shrink-0" />
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+                  Tren Omzet Penjualan
+                </h3>
+              </div>
               <p className="text-xs text-stone-500 mt-0.5">
-                Visualisasi kurva area fluktuasi omzet harian dengan deteksi titik puncak transaksi kasir
+                Klik titik data pada grafik untuk memfilter transaksi di tabel bawah secara langsung
               </p>
             </div>
 
-            {/* Telemetry Stats Chips */}
+            {/* Timeframe selector + Telemetry badges */}
             <div className="flex items-center gap-2 flex-wrap">
+              <div className="inline-flex bg-stone-100 p-0.5 rounded-xl border border-stone-200/70 text-xs font-semibold">
+                <button
+                  onClick={() => {
+                    setTimeframe('7d');
+                    setSelectedDateFilter(null);
+                  }}
+                  className={`px-3 py-1 rounded-lg transition-all ${
+                    timeframe === '7d'
+                      ? 'bg-white text-stone-900 shadow-2xs font-bold'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  7 Hari
+                </button>
+                <button
+                  onClick={() => {
+                    setTimeframe('month');
+                    setSelectedDateFilter(null);
+                  }}
+                  className={`px-3 py-1 rounded-lg transition-all ${
+                    timeframe === 'month'
+                      ? 'bg-white text-stone-900 shadow-2xs font-bold'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  14 Hari
+                </button>
+              </div>
+
               <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-amber-100/90 text-amber-950 border border-amber-300/80 shadow-2xs">
                 Puncak: Rp {peakDay.revenue.toLocaleString('id-ID')}
-              </span>
-              <span className="text-xs font-mono font-medium px-2.5 py-1 rounded-lg bg-stone-100 text-stone-700 border border-stone-200/80">
-                Rata-rata: Rp {avgRevenue.toLocaleString('id-ID')}/hr
               </span>
             </div>
           </div>
 
-          {/* SVG Area Chart Visualizer (WattVision: Área suave para suavizar picos, líneas de grid en #2C2C2E) */}
-          <div className="relative w-full overflow-hidden pt-2">
+          {/* Active Filter Notice if clicked on chart */}
+          {selectedDateFilter && (
+            <div className="flex items-center justify-between bg-amber-50 border border-amber-200/80 rounded-xl px-3 py-2 text-xs">
+              <span className="text-amber-900 font-medium flex items-center gap-1.5">
+                <Filter className="w-3.5 h-3.5 text-amber-700" />
+                Memfilter tanggal: <strong>{selectedDateFilter}</strong>
+              </span>
+              <button
+                onClick={() => setSelectedDateFilter(null)}
+                className="text-amber-700 hover:text-amber-950 font-bold flex items-center gap-1 hover:underline"
+              >
+                <span>Hapus Filter</span>
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
+          {/* SVG Area Chart Visualizer (Clean, spacious, zero clipping) */}
+          <div className="relative w-full pt-2">
             <svg
               viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-              className="w-full h-64 sm:h-72 overflow-visible select-none"
+              className="w-full h-64 sm:h-72 select-none overflow-visible"
             >
               <defs>
                 {/* Tisoffindo Warm Amber Gradient for Area Chart */}
                 <linearGradient id="amberAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#EA580C" stopOpacity="0.40" />
-                  <stop offset="50%" stopColor="#F59E0B" stopOpacity="0.18" />
+                  <stop offset="0%" stopColor="#EA580C" stopOpacity="0.38" />
+                  <stop offset="60%" stopColor="#F59E0B" stopOpacity="0.14" />
                   <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.00" />
                 </linearGradient>
 
@@ -383,6 +436,7 @@ export const DashboardView: React.FC = () => {
               {gridSteps.map((step, idx) => {
                 const y = paddingTop + (1 - step) * chartHeight;
                 const val = Math.round(maxRevenue * step);
+                const label = step === 0 ? 'Rp 0' : `Rp ${(val / 1000).toFixed(0)}k`;
                 return (
                   <g key={idx}>
                     <line
@@ -395,12 +449,12 @@ export const DashboardView: React.FC = () => {
                       strokeWidth={step === 0 ? 1.5 : 1}
                     />
                     <text
-                      x={paddingLeft - 8}
+                      x={paddingLeft - 10}
                       y={y + 4}
                       textAnchor="end"
                       className="text-[10px] font-mono fill-stone-400 font-medium"
                     >
-                      Rp {(val / 1000).toFixed(0)}k
+                      {label}
                     </text>
                   </g>
                 );
@@ -436,8 +490,13 @@ export const DashboardView: React.FC = () => {
               {/* Data Points, Markers & Interactive Hover Rings */}
               {chartPoints.map((p, idx) => {
                 const isHovered = hoveredDayIndex === idx;
+                const isSelected = selectedDateFilter === p.dateStr;
                 const isPeak = p.revenue === peakDay.revenue && p.revenue > 0;
                 const isToday = idx === chartPoints.length - 1;
+
+                // Tooltip bounded coordinates (guaranteed zero clipping)
+                const tooltipX = Math.max(75, Math.min(svgWidth - 75, p.x));
+                const tooltipY = Math.max(22, p.y - 36);
 
                 return (
                   <g
@@ -445,9 +504,12 @@ export const DashboardView: React.FC = () => {
                     className="cursor-pointer"
                     onMouseEnter={() => setHoveredDayIndex(idx)}
                     onMouseLeave={() => setHoveredDayIndex(null)}
+                    onClick={() => {
+                      setSelectedDateFilter(selectedDateFilter === p.dateStr ? null : p.dateStr);
+                    }}
                   >
                     {/* Hover Vertical Highlight Line */}
-                    {isHovered && (
+                    {(isHovered || isSelected) && (
                       <line
                         x1={p.x}
                         y1={paddingTop}
@@ -460,14 +522,14 @@ export const DashboardView: React.FC = () => {
                       />
                     )}
 
-                    {/* Outer Halo on Hover or Peak */}
-                    {(isHovered || isPeak) && (
+                    {/* Outer Halo on Hover or Selection */}
+                    {(isHovered || isSelected || isPeak) && (
                       <circle
                         cx={p.x}
                         cy={p.y}
-                        r={isHovered ? 9 : 8}
+                        r={isSelected ? 10 : isHovered ? 9 : 8}
                         fill="#F59E0B"
-                        opacity={isHovered ? 0.35 : 0.25}
+                        opacity={isSelected ? 0.45 : isHovered ? 0.35 : 0.22}
                       />
                     )}
 
@@ -475,15 +537,15 @@ export const DashboardView: React.FC = () => {
                     <circle
                       cx={p.x}
                       cy={p.y}
-                      r={isHovered ? 6 : isPeak || isToday ? 5 : 4}
-                      fill={isPeak ? '#B45309' : isToday ? '#EA580C' : '#78716C'}
+                      r={isSelected ? 7 : isHovered ? 6 : isPeak || isToday ? 5 : 4}
+                      fill={isSelected ? '#B45309' : isPeak ? '#B45309' : isToday ? '#EA580C' : '#78716C'}
                       stroke="#FFFFFF"
-                      strokeWidth="2.5"
+                      strokeWidth={isSelected ? 3 : 2.5}
                     />
 
-                    {/* Peak Badge */}
-                    {isPeak && !isHovered && (
-                      <g transform={`translate(${p.x}, ${p.y - 14})`}>
+                    {/* Peak Badge (Well within viewBox headroom) */}
+                    {isPeak && !isHovered && !isSelected && (
+                      <g transform={`translate(${p.x}, ${p.y - 16})`}>
                         <rect
                           x="-26"
                           y="-14"
@@ -504,21 +566,21 @@ export const DashboardView: React.FC = () => {
                       </g>
                     )}
 
-                    {/* Hover Tooltip Card */}
-                    {isHovered && (
-                      <g transform={`translate(${p.x}, ${Math.max(paddingTop - 10, p.y - 36)})`}>
+                    {/* Tooltip Card (Bounded, zero clipping) */}
+                    {(isHovered || isSelected) && (
+                      <g transform={`translate(${tooltipX}, ${tooltipY})`}>
                         <rect
-                          x="-60"
+                          x="-64"
                           y="-20"
-                          width="120"
-                          height="32"
-                          rx="6"
+                          width="128"
+                          height="36"
+                          rx="8"
                           fill="#1C1917"
-                          className="drop-shadow-md"
+                          className="drop-shadow-lg"
                         />
                         <text
                           x="0"
-                          y="-6"
+                          y="-5"
                           textAnchor="middle"
                           className="text-[10px] font-mono font-bold fill-amber-300"
                         >
@@ -526,11 +588,11 @@ export const DashboardView: React.FC = () => {
                         </text>
                         <text
                           x="0"
-                          y="6"
+                          y="8"
                           textAnchor="middle"
-                          className="text-[8px] fill-stone-300 font-sans"
+                          className="text-[8.5px] fill-stone-300 font-sans"
                         >
-                          {p.trxCount} trx • {p.qty} bungkus
+                          {p.trxCount} transaksi • {p.qty} bungkus
                         </text>
                       </g>
                     )}
@@ -543,7 +605,7 @@ export const DashboardView: React.FC = () => {
                       className={`text-xs font-semibold ${
                         isToday
                           ? 'fill-amber-700 font-bold'
-                          : isHovered
+                          : isHovered || isSelected
                           ? 'fill-stone-900 font-bold'
                           : 'fill-stone-600'
                       }`}
@@ -564,14 +626,14 @@ export const DashboardView: React.FC = () => {
             </svg>
           </div>
 
-          {/* Telemetry Stats Strip below the Chart (Power BI style mini KPI band) */}
+          {/* Telemetry Stats Strip below the Chart (Clean 4-metric strip) */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-stone-100">
             <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200/60">
               <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block">
-                Total Omzet 7 Hari
+                Total Omzet {timeframe === '7d' ? '7 Hari' : '14 Hari'}
               </span>
-              <span className="text-sm font-mono font-bold text-stone-900 block mt-0.5">
-                Rp {total7DayRevenue.toLocaleString('id-ID')}
+              <span className="text-sm font-mono font-bold text-stone-900 block mt-0.5 truncate">
+                Rp {totalPeriodRevenue.toLocaleString('id-ID')}
               </span>
             </div>
 
@@ -579,7 +641,7 @@ export const DashboardView: React.FC = () => {
               <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block">
                 Rata-rata Harian
               </span>
-              <span className="text-sm font-mono font-bold text-stone-900 block mt-0.5">
+              <span className="text-sm font-mono font-bold text-stone-900 block mt-0.5 truncate">
                 Rp {avgRevenue.toLocaleString('id-ID')}
               </span>
             </div>
@@ -588,8 +650,8 @@ export const DashboardView: React.FC = () => {
               <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block">
                 Total Transaksi
               </span>
-              <span className="text-sm font-mono font-bold text-stone-900 block mt-0.5">
-                {total7DayTrx} Nota Kasir
+              <span className="text-sm font-mono font-bold text-stone-900 block mt-0.5 truncate">
+                {totalPeriodTrx} Nota Kasir
               </span>
             </div>
 
@@ -597,22 +659,22 @@ export const DashboardView: React.FC = () => {
               <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900 block">
                 Hari Penjualan Tertinggi
               </span>
-              <span className="text-sm font-mono font-bold text-amber-950 block mt-0.5">
+              <span className="text-sm font-mono font-bold text-amber-950 block mt-0.5 truncate">
                 {peakDay.day} ({peakDay.date})
               </span>
             </div>
           </div>
         </div>
 
-        {/* 4-Column Alert & Telemetry Panel (WattVision Section 3 & 5: Panel de Alertas en lateral derecho con borde izquierdo 4px) */}
-        <div className="lg:col-span-4 space-y-4">
+        {/* 4-Column Alert & Telemetry Panel (Harmonized height with the chart) */}
+        <div className="lg:col-span-4 space-y-3.5">
           {/* Panel Header */}
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
               <AlertTriangle className="w-4 h-4 text-amber-600" />
               Panel Alerta & Status Sistem
             </h3>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               LIVE SISTEM
             </span>
@@ -620,7 +682,7 @@ export const DashboardView: React.FC = () => {
 
           {/* Alert Card 1: Critical Stock Alert (4px solid left border) */}
           {criticalStockProducts.length > 0 ? (
-            <div className="bg-rose-50/90 border border-rose-200/90 border-l-4 border-l-rose-600 rounded-xl p-4 shadow-2xs space-y-2.5">
+            <div className="bg-rose-50/90 border border-rose-200/90 border-l-4 border-l-rose-600 rounded-xl p-3.5 shadow-2xs space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wide text-rose-800 flex items-center gap-1.5">
                   <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
@@ -631,12 +693,12 @@ export const DashboardView: React.FC = () => {
                 </span>
               </div>
 
-              <p className="text-xs text-rose-900 leading-relaxed">
-                Terdapat varian produk yang telah menyentuh atau berada di bawah ambang batas minimum gudang. Segera lakukan restok.
+              <p className="text-xs text-rose-900 leading-snug">
+                Varian di bawah batas minimum gudang. Segera lakukan restok persediaan.
               </p>
 
-              <div className="space-y-1.5 pt-1">
-                {criticalStockProducts.slice(0, 3).map((p) => (
+              <div className="space-y-1.5 pt-0.5">
+                {criticalStockProducts.slice(0, 2).map((p) => (
                   <div
                     key={p.id}
                     className="flex items-center justify-between text-xs bg-white/80 p-2 rounded-lg border border-rose-200/60"
@@ -651,34 +713,32 @@ export const DashboardView: React.FC = () => {
 
               <button
                 onClick={() => setCurrentView('products')}
-                className="w-full mt-2 py-2 px-3 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                className="w-full mt-1.5 py-2 px-3 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
               >
                 <span>Buka Inventaris & Restok</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           ) : (
-            <div className="bg-emerald-50/90 border border-emerald-200/90 border-l-4 border-l-emerald-600 rounded-xl p-4 shadow-2xs space-y-2">
+            <div className="bg-emerald-50/90 border border-emerald-200/90 border-l-4 border-l-emerald-600 rounded-xl p-3.5 shadow-2xs space-y-1.5">
               <div className="flex items-center gap-1.5 text-emerald-800 text-xs font-bold uppercase tracking-wide">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 Status Inventaris Optimal
               </div>
               <p className="text-xs text-emerald-900 leading-relaxed">
-                Semua varian kerupuk rambak ({products.length} varian) berada dalam batas persediaan aman di atas ambang minimum.
+                Semua varian kerupuk rambak ({products.length} varian) dalam batas persediaan aman.
               </p>
-              <div className="pt-1">
-                <button
-                  onClick={() => setCurrentView('products')}
-                  className="text-xs font-bold text-emerald-800 hover:text-emerald-900 underline flex items-center gap-1"
-                >
-                  <span>Cek Rincian Stok Produk &rarr;</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setCurrentView('products')}
+                className="text-xs font-bold text-emerald-800 hover:text-emerald-900 underline flex items-center gap-1 pt-1"
+              >
+                <span>Cek Rincian Stok Produk &rarr;</span>
+              </button>
             </div>
           )}
 
           {/* Alert Card 2: Terminal Kasir & POS Operasional (4px solid left border) */}
-          <div className="bg-amber-50/90 border border-amber-200/90 border-l-4 border-l-amber-600 rounded-xl p-4 shadow-2xs space-y-2.5">
+          <div className="bg-amber-50/90 border border-amber-200/90 border-l-4 border-l-amber-600 rounded-xl p-3.5 shadow-2xs space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wide text-amber-900 flex items-center gap-1.5">
                 <Receipt className="w-4 h-4 text-amber-700 shrink-0" />
@@ -689,19 +749,21 @@ export const DashboardView: React.FC = () => {
               </span>
             </div>
 
-            <div className="text-xs space-y-1.5 bg-white/70 p-2.5 rounded-lg border border-amber-200/60">
+            <div className="text-xs space-y-1 bg-white/70 p-2.5 rounded-lg border border-amber-200/60">
               <div className="flex justify-between items-center">
-                <span className="text-stone-500">Petugas Bertugas:</span>
-                <span className="font-semibold text-stone-900">{currentUser.full_name}</span>
+                <span className="text-stone-500">Petugas:</span>
+                <span className="font-semibold text-stone-900 truncate max-w-[150px]">
+                  {currentUser.full_name}
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-stone-500">Transaksi Terakhir:</span>
+                <span className="text-stone-500">Nota Terakhir:</span>
                 <span className="font-mono font-bold text-stone-900">
                   {latestSale ? latestSale.invoice_no : 'Belum Ada'}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-stone-500">Nominal Nota:</span>
+                <span className="text-stone-500">Nominal:</span>
                 <span className="font-mono font-bold text-amber-800">
                   {latestSale ? `Rp ${latestSale.total_amount.toLocaleString('id-ID')}` : '-'}
                 </span>
@@ -718,7 +780,7 @@ export const DashboardView: React.FC = () => {
           </div>
 
           {/* Alert Card 3: Diagnostik Database & Penyimpanan (4px solid left border) */}
-          <div className="bg-stone-50 border border-stone-200/90 border-l-4 border-l-stone-600 rounded-xl p-4 shadow-2xs space-y-2">
+          <div className="bg-stone-50 border border-stone-200/90 border-l-4 border-l-stone-600 rounded-xl p-3.5 shadow-2xs space-y-1.5">
             <div className="flex items-center gap-1.5 text-stone-800 text-xs font-bold uppercase tracking-wide">
               <ShieldCheck className="w-4 h-4 text-stone-600 shrink-0" />
               Integritas & Audit Sistem
@@ -738,15 +800,15 @@ export const DashboardView: React.FC = () => {
             </div>
 
             <p className="text-[11px] text-stone-500 leading-tight">
-              Sistem beroperasi dengan backup data terenkripsi dan log mutasi real-time.
+              Sistem beroperasi dengan backup data terenkripsi dan log audit real-time.
             </p>
           </div>
         </div>
       </div>
 
-      {/* 3. Top Selling Products Breakdown (12 Columns Full Width) */}
+      {/* 3. Top Selling Products Breakdown (Responsive Grid: 1 sm:2 lg:3 xl:5) */}
       <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
           <div>
             <h3 className="text-base font-bold text-stone-900 tracking-tight flex items-center gap-2">
               <Boxes className="w-5 h-5 text-amber-600" />
@@ -758,16 +820,16 @@ export const DashboardView: React.FC = () => {
           </div>
           <button
             onClick={() => setCurrentView('reports')}
-            className="text-xs font-bold text-amber-700 hover:text-amber-800 transition-colors inline-flex items-center gap-1"
+            className="text-xs font-bold text-amber-700 hover:text-amber-800 transition-colors inline-flex items-center gap-1 self-start sm:self-auto"
           >
             <span>Lihat Laporan Rekap Lengkap</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
           {topSellingProducts.length === 0 ? (
-            <p className="text-xs text-stone-400 py-6 text-center col-span-5">
+            <p className="text-xs text-stone-400 py-6 text-center col-span-full">
               Belum ada data penjualan tercatat.
             </p>
           ) : (
@@ -798,14 +860,14 @@ export const DashboardView: React.FC = () => {
                       </span>
                     </div>
 
-                    <h4 className="text-xs font-bold text-stone-900 line-clamp-2 leading-tight mb-1.5" title={p.name}>
+                    <h4 className="text-xs font-bold text-stone-900 line-clamp-2 leading-tight mb-2 min-h-[32px]" title={p.name}>
                       {p.name}
                     </h4>
                   </div>
 
-                  <div className="mt-3 pt-2 border-t border-stone-200/60">
+                  <div className="mt-2 pt-2 border-t border-stone-200/60">
                     <div className="flex justify-between items-center text-[11px] mb-1.5">
-                      <span className="text-stone-500">Pendapatan:</span>
+                      <span className="text-stone-500">Omzet:</span>
                       <span className="font-mono font-bold text-stone-900">
                         Rp {p.revenue.toLocaleString('id-ID')}
                       </span>
@@ -827,15 +889,30 @@ export const DashboardView: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Bottom Section: 12-Column Full Width Data Table (WattVision Section 3: Tablas con border-bottom y hover) */}
+      {/* 4. Bottom Section: 12-Column Full Width Data Table (with Interactive Filter state) */}
       <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
           <div>
-            <h3 className="text-base font-bold text-stone-900 tracking-tight flex items-center gap-2">
-              <Receipt className="w-4 h-4 text-amber-600" />
-              {isAdmin ? 'Tabel Transaksi Kasir Real-Time (Semua Petugas)' : 'Transaksi Kasir yang Saya Input'}
-            </h3>
-            <p className="text-xs text-stone-500">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-base font-bold text-stone-900 tracking-tight flex items-center gap-2">
+                <Receipt className="w-4 h-4 text-amber-600" />
+                {isAdmin ? 'Tabel Transaksi Kasir Real-Time' : 'Transaksi Kasir yang Saya Input'}
+              </h3>
+              {selectedDateFilter && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                  <Filter className="w-3 h-3 text-amber-700" />
+                  Filter: {selectedDateFilter}
+                  <button
+                    onClick={() => setSelectedDateFilter(null)}
+                    className="ml-1 text-amber-700 hover:text-amber-950 font-bold"
+                    title="Hapus filter"
+                  >
+                    &times;
+                  </button>
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-stone-500 mt-0.5">
               Log transaksi penjualan kasir terperinci dengan metode bayar, timestamp, dan validasi struk nota
             </p>
           </div>
@@ -849,7 +926,7 @@ export const DashboardView: React.FC = () => {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs min-w-[680px]">
             <thead>
               <tr className="border-b border-stone-200 text-stone-400 font-semibold uppercase tracking-wider text-[11px]">
@@ -864,60 +941,78 @@ export const DashboardView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {relevantSales.slice(0, 8).map((sale) => (
-                <tr
-                  key={sale.id}
-                  className="hover:bg-amber-50/40 transition-colors"
-                >
-                  <td className="py-3 px-3 font-mono font-bold text-stone-900 whitespace-nowrap">
-                    {sale.invoice_no}
-                  </td>
-                  <td className="py-3 px-3 text-stone-500 font-mono whitespace-nowrap text-[11px]">
-                    {new Date(sale.created_at).toLocaleTimeString('id-ID', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}{' '}
-                    WIB
-                  </td>
-                  <td className="py-3 px-3 text-stone-800 font-medium">
-                    {sale.customer_name || 'Pelanggan Umum'}
-                  </td>
-                  <td className="py-3 px-3 text-stone-600 whitespace-nowrap">
-                    {sale.created_by_name}
-                  </td>
-                  <td className="py-3 px-3 whitespace-nowrap">
-                    <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 font-mono text-[11px] font-medium border border-stone-200/60">
-                      {sale.payment_method}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 text-right font-bold text-stone-900 font-mono whitespace-nowrap">
-                    Rp {sale.total_amount.toLocaleString('id-ID')}
-                  </td>
-                  <td className="py-3 px-3 text-center whitespace-nowrap">
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                        sale.status === 'completed'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-rose-100 text-rose-800'
-                      }`}
-                    >
-                      {sale.status === 'completed' ? 'Selesai' : 'Dibatalkan'}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 text-center whitespace-nowrap">
-                    <button
-                      onClick={() => setActiveReceipt(sale)}
-                      className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-amber-800 transition-colors inline-flex items-center gap-1 text-[11px] font-semibold"
-                      title="Cetak / Buka Struk Faktur"
-                    >
-                      <Receipt className="w-3.5 h-3.5 text-amber-700" />
-                      <span>Struk</span>
-                    </button>
+              {displayedSales.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-8 text-center text-stone-400 text-xs">
+                    Tidak ada transaksi ditemukan {selectedDateFilter ? `pada tanggal ${selectedDateFilter}` : ''}.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                displayedSales.slice(0, 8).map((sale) => (
+                  <tr
+                    key={sale.id}
+                    className="hover:bg-amber-50/40 transition-colors"
+                  >
+                    <td className="py-3 px-3 font-mono font-bold text-stone-900 whitespace-nowrap">
+                      {sale.invoice_no}
+                    </td>
+                    <td className="py-3 px-3 text-stone-500 font-mono whitespace-nowrap text-[11px]">
+                      {new Date(sale.created_at).toLocaleTimeString('id-ID', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}{' '}
+                      WIB
+                    </td>
+                    <td className="py-3 px-3 text-stone-800 font-medium">
+                      {sale.customer_name || 'Pelanggan Umum'}
+                    </td>
+                    <td className="py-3 px-3 text-stone-600 whitespace-nowrap">
+                      {sale.created_by_name}
+                    </td>
+                    <td className="py-3 px-3 whitespace-nowrap">
+                      <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 font-mono text-[11px] font-medium border border-stone-200/60">
+                        {sale.payment_method}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 text-right font-bold text-stone-900 font-mono whitespace-nowrap">
+                      Rp {sale.total_amount.toLocaleString('id-ID')}
+                    </td>
+                    <td className="py-3 px-3 text-center whitespace-nowrap">
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          sale.status === 'completed'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-rose-100 text-rose-800'
+                        }`}
+                      >
+                        {sale.status === 'completed' ? 'Selesai' : 'Dibatalkan'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 text-center whitespace-nowrap">
+                      <button
+                        onClick={() => setActiveReceipt(sale)}
+                        className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-amber-800 transition-colors inline-flex items-center gap-1 text-[11px] font-semibold"
+                        title="Cetak / Buka Struk Faktur"
+                      >
+                        <Receipt className="w-3.5 h-3.5 text-amber-700" />
+                        <span>Struk</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
+        </div>
+
+        {/* Table footer info & mobile hint */}
+        <div className="pt-3 border-t border-stone-100 mt-2 flex items-center justify-between text-[11px] text-stone-500 flex-wrap gap-2">
+          <span>
+            Menampilkan {Math.min(8, displayedSales.length)} dari {displayedSales.length} transaksi tercatat
+          </span>
+          <span className="lg:hidden text-stone-400">
+            Geser tabel ke samping untuk rincian &rarr;
+          </span>
         </div>
       </div>
     </div>
