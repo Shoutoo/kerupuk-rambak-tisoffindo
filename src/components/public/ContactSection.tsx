@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { useApp } from '../../context/AppContext';
 import {
   Phone,
@@ -11,6 +12,7 @@ import {
   Star,
   Compass,
 } from 'lucide-react';
+import { staggerContainer, staggerItem, fadeInLeft, fadeInRight, viewportOnce } from '../../utils/motionVariants';
 
 export const ContactSection: React.FC = () => {
   const { companyProfile } = useApp();
@@ -58,40 +60,61 @@ export const ContactSection: React.FC = () => {
     <section id="kontak" className="py-16 sm:py-20 bg-[#1C1917] text-stone-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#A8441A]/20 border border-[#A8441A]/40 text-[#F2A054] text-xs font-bold tracking-wide uppercase mb-3">
+        <motion.div
+          className="text-center max-w-3xl mx-auto mb-12 sm:mb-16"
+          variants={staggerContainer(0.15)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+        >
+          <motion.div variants={staggerItem} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#A8441A]/20 border border-[#A8441A]/40 text-[#F2A054] text-xs font-bold tracking-wide uppercase mb-3">
             <MessageSquare className="w-3.5 h-3.5 text-[#F2A054]" />
             <span>Kontak & Lokasi Pabrik</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-bold font-serif text-white tracking-tight">
+          </motion.div>
+          <motion.h2 variants={staggerItem} className="text-3xl sm:text-4xl font-bold font-serif text-white tracking-tight">
             Kunjungi Pabrik Kami di Boyolali atau Pesan Online
-          </h2>
-          <p className="mt-3 text-stone-300 text-sm sm:text-base leading-relaxed">
+          </motion.h2>
+          <motion.p variants={staggerItem} className="mt-3 text-stone-300 text-sm sm:text-base leading-relaxed">
             Kami melayani pembelian eceran, paket oleh-oleh khas Boyolali, hingga suplai pesanan rutin partai besar untuk rumah makan dan mitra warung.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         {/* Steps Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12 sm:mb-16">
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12 sm:mb-16"
+          variants={staggerContainer(0.1)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+        >
           {steps.map((st, i) => (
-            <div
+            <motion.div
               key={i}
-              className="p-5 sm:p-6 rounded-2xl bg-[#26201D] border border-[#3E302A] relative overflow-hidden flex flex-col justify-between hover:border-[#A8441A]/60 transition-colors"
+              variants={staggerItem}
+              className="p-5 sm:p-6 rounded-2xl bg-[#26201D] border border-[#3E302A] relative overflow-hidden flex flex-col justify-between"
+              whileHover={{ y: -5, borderColor: 'rgba(168, 68, 26, 0.6)' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             >
               <div>
                 <div className="text-3xl font-extrabold text-[#F2A054]/30 font-serif mb-2">{st.num}</div>
                 <h4 className="text-base font-bold text-white mb-1.5">{st.title}</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">{st.desc}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* 2-Column: Left (Contact Info & Direct Order) + Right (Google Maps Embed & Route CTA) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Business Details & Contact Cards */}
-          <div className="lg:col-span-6 space-y-6">
-            <div className="space-y-2">
+          <motion.div
+            className="lg:col-span-6 space-y-6"
+            initial="hidden"
+            whileInView="visible"
+            viewport={viewportOnce}
+            variants={staggerContainer(0.12)}
+          >
+            <motion.div variants={staggerItem} className="space-y-2">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
                   Operasional: {operatingHours}
@@ -110,69 +133,86 @@ export const ContactSection: React.FC = () => {
               <p className="text-stone-300 text-sm leading-relaxed">
                 Pintu kami selalu terbuka untuk Anda yang ingin mencicipi langsung kerenyahan kerupuk rambak sapi fresh dari kuali penggorengan tradisional kami.
               </p>
-            </div>
+            </motion.div>
 
             <div className="space-y-3.5 pt-1">
-              {/* Alamat */}
-              <div className="flex items-start gap-3.5 p-4 rounded-xl bg-[#26201D] border border-[#3E302A]">
-                <MapPin className="w-5 h-5 text-[#F2A054] shrink-0 mt-0.5" />
-                <div className="min-w-0 flex-1">
-                  <h5 className="font-bold text-sm text-stone-200">Alamat Pabrik & Sentra Produksi:</h5>
-                  <p className="text-xs sm:text-sm text-stone-300 mt-1 leading-relaxed break-words">{address}</p>
-                  {plusCode && (
-                    <div className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-stone-400 bg-stone-900/60 px-2 py-0.5 rounded border border-stone-700/60">
-                      <Compass className="w-3 h-3 text-[#F2A054]" />
-                      <span>Plus Code: <strong>{plusCode}</strong></span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Jam Operasional */}
-              <div className="flex items-start gap-3.5 p-4 rounded-xl bg-[#26201D] border border-[#3E302A]">
-                <Clock className="w-5 h-5 text-[#F2A054] shrink-0 mt-0.5" />
-                <div>
-                  <h5 className="font-bold text-sm text-stone-200">Jam Operasional:</h5>
-                  <p className="text-xs sm:text-sm text-stone-300 mt-1 font-medium text-emerald-400">
-                    {operatingHours}
-                  </p>
-                  <p className="text-[11px] text-stone-400 mt-0.5">
-                    Layanan pemesanan, pengiriman, dan kunjungan pabrik standby setiap hari.
-                  </p>
-                </div>
-              </div>
-
-              {/* Kontak WA & Telp */}
-              <div className="flex items-start gap-3.5 p-4 rounded-xl bg-[#26201D] border border-[#3E302A]">
-                <Phone className="w-5 h-5 text-[#F2A054] shrink-0 mt-0.5" />
-                <div className="min-w-0 flex-1">
-                  <h5 className="font-bold text-sm text-stone-200">No. Telepon & WhatsApp:</h5>
-                  <p className="text-xs sm:text-sm text-stone-300 mt-1 font-mono font-semibold">
-                    {phone}
-                  </p>
-                  <p className="text-[11px] text-stone-400 mt-0.5">
-                    Respon cepat pemesanan eceran, kartonan, dan kemitraan agen.
-                  </p>
-                </div>
-              </div>
+              {[
+                {
+                  icon: <MapPin className="w-5 h-5 text-[#F2A054] shrink-0 mt-0.5" />,
+                  title: 'Alamat Pabrik & Sentra Produksi:',
+                  content: (
+                    <>
+                      <p className="text-xs sm:text-sm text-stone-300 mt-1 leading-relaxed break-words">{address}</p>
+                      {plusCode && (
+                        <div className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-stone-400 bg-stone-900/60 px-2 py-0.5 rounded border border-stone-700/60">
+                          <Compass className="w-3 h-3 text-[#F2A054]" />
+                          <span>Plus Code: <strong>{plusCode}</strong></span>
+                        </div>
+                      )}
+                    </>
+                  ),
+                },
+                {
+                  icon: <Clock className="w-5 h-5 text-[#F2A054] shrink-0 mt-0.5" />,
+                  title: 'Jam Operasional:',
+                  content: (
+                    <>
+                      <p className="text-xs sm:text-sm text-stone-300 mt-1 font-medium text-emerald-400">{operatingHours}</p>
+                      <p className="text-[11px] text-stone-400 mt-0.5">Layanan pemesanan, pengiriman, dan kunjungan pabrik standby setiap hari.</p>
+                    </>
+                  ),
+                },
+                {
+                  icon: <Phone className="w-5 h-5 text-[#F2A054] shrink-0 mt-0.5" />,
+                  title: 'No. Telepon & WhatsApp:',
+                  content: (
+                    <>
+                      <p className="text-xs sm:text-sm text-stone-300 mt-1 font-mono font-semibold">{phone}</p>
+                      <p className="text-[11px] text-stone-400 mt-0.5">Respon cepat pemesanan eceran, kartonan, dan kemitraan agen.</p>
+                    </>
+                  ),
+                },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  variants={staggerItem}
+                  className="flex items-start gap-3.5 p-4 rounded-xl bg-[#26201D] border border-[#3E302A]"
+                  whileHover={{ x: 6, borderColor: 'rgba(168, 68, 26, 0.4)' }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                >
+                  {item.icon}
+                  <div className="min-w-0 flex-1">
+                    <h5 className="font-bold text-sm text-stone-200">{item.title}</h5>
+                    {item.content}
+                  </div>
+                </motion.div>
+              ))}
             </div>
 
             {/* Direct WhatsApp Callout Button */}
-            <div className="pt-2">
-              <a
+            <motion.div variants={staggerItem} className="pt-2">
+              <motion.a
                 href={`https://wa.me/${waNumber}?text=Halo%20Tisoffindo,%20saya%20mau%20order%20kerupuk%20rambak%20sapi%20asli.`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 transition-all transform hover:-translate-y-0.5"
+                className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 transition-all"
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.97 }}
               >
                 <Phone className="w-4 h-4" />
                 <span>Chat Langsung via WhatsApp ({phone})</span>
-              </a>
-            </div>
-          </div>
+              </motion.a>
+            </motion.div>
+          </motion.div>
 
-          {/* Right Column: Google Maps Embed Card (User Requirement 2) */}
-          <div className="lg:col-span-6 rounded-2xl bg-stone-850 p-4 sm:p-6 border border-stone-700 shadow-xl space-y-4">
+          {/* Right Column: Google Maps Embed Card */}
+          <motion.div
+            className="lg:col-span-6 rounded-2xl bg-stone-850 p-4 sm:p-6 border border-stone-700 shadow-xl space-y-4"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={viewportOnce}
+            transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-700/80 pb-3">
               <div>
                 <h4 className="text-base sm:text-lg font-bold font-serif text-white flex items-center gap-2">
@@ -182,18 +222,19 @@ export const ContactSection: React.FC = () => {
                 <p className="text-xs text-stone-400">Jeron, Kec. Nogosari, Kabupaten Boyolali</p>
               </div>
 
-              {/* Rute ke Lokasi Button (User Requirement 2) */}
-              <a
+              <motion.a
                 href={gmapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Buka Petunjuk Arah di Google Maps"
-                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center gap-1.5 shadow-md transition-all hover:scale-102"
+                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center gap-1.5 shadow-md transition-all"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Navigation className="w-3.5 h-3.5 fill-current" />
                 <span>Rute ke Lokasi</span>
                 <ExternalLink className="w-3 h-3 ml-0.5" />
-              </a>
+              </motion.a>
             </div>
 
             {/* Responsive Iframe Embed Container */}
@@ -221,10 +262,9 @@ export const ContactSection: React.FC = () => {
                 Setiap kemasan dilindungi segel kedap udara dan dipacking kardus tebal berlapis. Kerupuk sampai renyah mekar sempurna di tempat Anda.
               </p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
   );
 };
-

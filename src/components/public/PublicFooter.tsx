@@ -1,7 +1,9 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { useApp } from '../../context/AppContext';
 import { ShieldCheck, Lock, MapPin, Phone } from 'lucide-react';
 import { APP_ASSETS } from '../../assets/images';
+import { staggerContainer, staggerItem, viewportOnce } from '../../utils/motionVariants';
 
 export const PublicFooter: React.FC = () => {
   const { setCurrentView, companyProfile } = useApp();
@@ -15,10 +17,16 @@ export const PublicFooter: React.FC = () => {
   return (
     <footer style={{ backgroundColor: '#1C1917', color: '#FFFFFF', fontFamily: 'Urbanist, sans-serif' }} className="py-16 border-t border-stone-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10"
+          variants={staggerContainer(0.1)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+        >
 
           {/* Brand Column */}
-          <div className="md:col-span-2 space-y-4">
+          <motion.div variants={staggerItem} className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
               <div style={{ borderColor: '#E0D6CA' }} className="w-10 h-10 rounded-[20px] overflow-hidden bg-white border shrink-0">
                 <img
@@ -63,10 +71,10 @@ export const PublicFooter: React.FC = () => {
                 Google Maps (5.0 ★)
               </a>
             </div>
-          </div>
+          </motion.div>
 
           {/* Navigation */}
-          <div>
+          <motion.div variants={staggerItem}>
             <h5 style={{ color: '#EDE3D6', letterSpacing: '0.08em' }} className="text-xs font-bold uppercase mb-4">Navigasi</h5>
             <ul className="space-y-2">
               {[
@@ -83,24 +91,26 @@ export const PublicFooter: React.FC = () => {
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
           {/* Portal Internal */}
-          <div>
+          <motion.div variants={staggerItem}>
             <h5 style={{ color: '#EDE3D6', letterSpacing: '0.08em' }} className="text-xs font-bold uppercase mb-4">Portal Toko</h5>
             <p style={{ color: '#8E857C' }} className="text-sm mb-4 leading-relaxed">
               Khusus Petugas Kasir dan Pemilik Usaha untuk pencatatan penjualan dan stok.
             </p>
-            <button
+            <motion.button
               onClick={() => setCurrentView('login')}
               style={{ backgroundColor: '#2A2420', borderColor: '#3A302A', color: '#F2A054', fontFamily: 'Urbanist, sans-serif' }}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-bold hover:bg-[#3A302A] transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <Lock className="w-3.5 h-3.5" />
               Login Sistem Internal
-            </button>
-          </div>
-        </div>
+            </motion.button>
+          </motion.div>
+        </motion.div>
 
         <div style={{ borderColor: '#2A2420' }} className="pt-8 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
           <p style={{ color: '#5C554F' }} className="text-xs">

@@ -1,7 +1,9 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { useApp } from '../../context/AppContext';
 import { Sparkles, ArrowRight, Award, CheckCircle2, Phone, Star, ExternalLink, MapPin, PackageCheck } from 'lucide-react';
 import { APP_ASSETS } from '../../assets/images';
+import { fadeInUp, fadeInLeft, fadeInRight, staggerContainer, staggerItem, scaleUp, viewportOnce } from '../../utils/motionVariants';
 
 export const HeroSection: React.FC = () => {
   const { setCurrentView, companyProfile, currentUser } = useApp();
@@ -32,8 +34,13 @@ export const HeroSection: React.FC = () => {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           {/* Left Column: Headlines & Call to Actions */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="flex flex-wrap items-center gap-2.5">
+          <motion.div
+            className="lg:col-span-7 space-y-6"
+            variants={staggerContainer(0.12)}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div variants={staggerItem} className="flex flex-wrap items-center gap-2.5">
               {/* Google Rating Badge */}
               <a
                 href={companyProfile?.gmaps_url || 'https://maps.app.goo.gl/G8kHXoGYuuycJxxy7'}
@@ -59,21 +66,21 @@ export const HeroSection: React.FC = () => {
                 <Sparkles className="w-3.5 h-3.5" style={{ color: '#A8441A' }} />
                 <span>SENTRA BOYOLALI</span>
               </div>
-            </div>
+            </motion.div>
 
-            <h1 style={{ color: '#1C1917', fontFamily: 'Urbanist, sans-serif' }} className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+            <motion.h1 variants={staggerItem} style={{ color: '#1C1917', fontFamily: 'Urbanist, sans-serif' }} className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
               Kerenyahan Autentik, <br />
               <span style={{ color: '#A8441A' }}>
                 Gurih Alami Tanpa Kompromi.
               </span>
-            </h1>
+            </motion.h1>
 
-            <p style={{ color: '#5C554F', fontFamily: 'Urbanist, sans-serif' }} className="text-sm sm:text-base lg:text-lg max-w-2xl leading-relaxed">
+            <motion.p variants={staggerItem} style={{ color: '#5C554F', fontFamily: 'Urbanist, sans-serif' }} className="text-sm sm:text-base lg:text-lg max-w-2xl leading-relaxed">
               {companyProfile?.business_name || 'Tisoffindo'} memproduksi kerupuk rambak sapi dan kerbau pilihan langsung dari rumah produksi kami di Boyolali. Diproses dari kulit sapi segar berkualitas tinggi, dijemur matahari alami, dan digoreng teknik khusus hingga mekar renyah sempurna.
-            </p>
+            </motion.p>
 
             {/* Feature Bullets */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <motion.div variants={staggerItem} className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
               {[
                 '100% Kulit Sapi & Kerbau Halal',
                 'Minyak Nabati Berkualitas & Higienis',
@@ -85,28 +92,32 @@ export const HeroSection: React.FC = () => {
                   <span style={{ color: '#3A2618', fontFamily: 'Urbanist, sans-serif' }} className="text-xs sm:text-sm font-medium">{text}</span>
                 </div>
               ))}
-            </div>
+            </motion.div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-3">
-              <button
+            <motion.div variants={staggerItem} className="flex flex-wrap items-center gap-3 pt-3">
+              <motion.button
                 type="button"
                 onClick={scrollToProducts}
                 style={{ backgroundColor: '#F2A054', color: '#2A1405', fontFamily: 'Urbanist, sans-serif' }}
                 className="px-6 py-3 rounded-full font-bold text-sm shadow-md hover:bg-[#E88D3A] flex items-center gap-2 transition-all"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <span>Lihat Katalog Produk</span>
                 <ArrowRight className="w-4 h-4" />
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 type="button"
                 onClick={openWhatsApp}
                 style={{ backgroundColor: '#EDE3D6', color: '#1C1917', borderColor: '#E0D6CA', fontFamily: 'Urbanist, sans-serif' }}
                 className="px-6 py-3 rounded-full border font-semibold text-sm flex items-center gap-2 transition-all hover:bg-[#E0D6CA]"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Phone className="w-4 h-4" style={{ color: '#A8441A' }} />
                 <span>WhatsApp: {companyProfile?.phone || '0812-3456-7890'}</span>
-              </button>
+              </motion.button>
               {currentUser ? (
                 <button
                   type="button"
@@ -126,16 +137,26 @@ export const HeroSection: React.FC = () => {
                   Staf / Pemilik? Masuk Sistem &rarr;
                 </button>
               )}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Right Column: Hero Visual Card */}
-          <div className="lg:col-span-5 relative">
+          <motion.div
+            className="lg:col-span-5 relative"
+            initial={{ opacity: 0, x: 60, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
             <div className="relative mx-auto max-w-md lg:max-w-none">
               {/* Card glow */}
               <div className="absolute -inset-1 rounded-[40px] blur-md opacity-20 pointer-events-none" style={{ background: 'linear-gradient(135deg, #F2A054, #A8441A)' }} />
 
-              <div style={{ backgroundColor: '#FFFFFF', borderColor: '#E0D6CA' }} className="relative rounded-[40px] p-4 border shadow-lg">
+              <motion.div
+                style={{ backgroundColor: '#FFFFFF', borderColor: '#E0D6CA' }}
+                className="relative rounded-[40px] p-4 border shadow-lg"
+                whileHover={{ y: -5 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              >
                 <div className="relative aspect-4/3 rounded-[28px] overflow-hidden" style={{ backgroundColor: '#EDE3D6' }}>
                   <img
                     src={APP_ASSETS.rambakPack}
@@ -153,24 +174,29 @@ export const HeroSection: React.FC = () => {
                 </div>
 
                 {/* Sub Card Stats */}
-                <div style={{ borderColor: '#E0D6CA' }} className="mt-4 grid grid-cols-3 gap-2 text-center pt-3 border-t">
+                <motion.div
+                  style={{ borderColor: '#E0D6CA' }}
+                  className="mt-4 grid grid-cols-3 gap-2 text-center pt-3 border-t"
+                  variants={staggerContainer(0.08)}
+                  initial="hidden"
+                  animate="visible"
+                >
                   {[
                     { value: '100%', label: 'Kulit Sapi Asli' },
                     { value: '5.0 ★', label: 'Rating Google' },
                     { value: '24 Jam', label: 'Operasional' },
                   ].map((stat) => (
-                    <div key={stat.label} style={{ backgroundColor: '#F4EFE9' }} className="p-2 rounded-[20px]">
+                    <motion.div key={stat.label} variants={staggerItem} style={{ backgroundColor: '#F4EFE9' }} className="p-2 rounded-[20px]">
                       <p style={{ color: '#A8441A', fontFamily: 'Urbanist, sans-serif' }} className="text-lg sm:text-xl font-bold">{stat.value}</p>
                       <p style={{ color: '#8E857C' }} className="text-[11px]">{stat.label}</p>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
   );
 };
-

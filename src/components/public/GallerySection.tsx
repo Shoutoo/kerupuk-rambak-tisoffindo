@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useApp } from '../../context/AppContext';
 import { Camera, Star, ExternalLink, Quote, X, Maximize2, ShieldCheck } from 'lucide-react';
 import { GalleryItem, Testimonial } from '../../types';
 import { APP_ASSETS } from '../../assets/images';
+import { staggerContainer, staggerItem, scaleUp, fadeInUp, viewportOnce } from '../../utils/motionVariants';
 
 export const GallerySection: React.FC = () => {
   const { gallery, testimonials, companyProfile } = useApp();
@@ -15,31 +17,46 @@ export const GallerySection: React.FC = () => {
     <section id="galeri" className="py-16 sm:py-20 bg-stone-50 border-b border-stone-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold tracking-wide uppercase mb-3">
+        <motion.div
+          className="text-center max-w-3xl mx-auto mb-12 sm:mb-16"
+          variants={staggerContainer(0.15)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+        >
+          <motion.div variants={staggerItem} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold tracking-wide uppercase mb-3">
             <Camera className="w-3.5 h-3.5 text-amber-700" />
             <span>Dokumentasi & Ulasan Nyata</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-bold font-serif text-stone-900 tracking-tight">
+          </motion.div>
+          <motion.h2 variants={staggerItem} className="text-3xl sm:text-4xl font-bold font-serif text-stone-900 tracking-tight">
             Dari Sentra Produksi Boyolali ke Meja Makan Anda
-          </h2>
-          <p className="mt-3 text-stone-600 text-sm sm:text-base leading-relaxed">
+          </motion.h2>
+          <motion.p variants={staggerItem} className="mt-3 text-stone-600 text-sm sm:text-base leading-relaxed">
             Melihat lebih dekat proses ketelitian, bahan kulit sapi pilihan, dan kehigienisan pembuatan kerupuk rambak Tisoffindo.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         {/* Dynamic Gallery Image Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 mb-16">
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 mb-16"
+          variants={staggerContainer(0.1)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+        >
           {displayGallery.map((item) => (
-            <div
+            <motion.div
               key={item.id}
+              variants={staggerItem}
               onClick={() => setSelectedPhoto(item)}
-              className="group relative rounded-2xl overflow-hidden aspect-4/3 bg-stone-200 shadow-sm border border-stone-200 cursor-pointer transform hover:-translate-y-1 transition-all duration-300"
+              className="group relative rounded-2xl overflow-hidden aspect-4/3 bg-stone-200 shadow-sm border border-stone-200 cursor-pointer"
+              whileHover={{ y: -6, scale: 1.02, boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
             >
               <img
                 src={item.image_url || APP_ASSETS.rambakPack}
                 alt={item.caption || 'Foto Galeri Pabrik Kerupuk Rambak Tisoffindo'}
-                className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-500"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 referrerPolicy="no-referrer"
                 onError={(e) => {
                   if (e.currentTarget.src !== APP_ASSETS.rambakPack) {
@@ -56,56 +73,72 @@ export const GallerySection: React.FC = () => {
                   {item.caption || 'Sentra produksi kerupuk rambak berkualitas tinggi'}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Photo Lightbox Modal */}
-        {selectedPhoto && (
-          <div
-            className="fixed inset-0 z-50 bg-stone-950/85 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setSelectedPhoto(null)}
-          >
-            <div
-              className="relative max-w-3xl w-full bg-stone-900 rounded-2xl overflow-hidden shadow-2xl border border-stone-700"
-              onClick={(e) => e.stopPropagation()}
+        <AnimatePresence>
+          {selectedPhoto && (
+            <motion.div
+              key="lightbox"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-stone-950/85 backdrop-blur-sm flex items-center justify-center p-4"
+              onClick={() => setSelectedPhoto(null)}
             >
-              <button
-                type="button"
-                onClick={() => setSelectedPhoto(null)}
-                className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-stone-950/70 hover:bg-stone-950 text-white flex items-center justify-center transition-colors"
-                title="Tutup Preview"
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+                className="relative max-w-3xl w-full bg-stone-900 rounded-2xl overflow-hidden shadow-2xl border border-stone-700"
+                onClick={(e) => e.stopPropagation()}
               >
-                <X className="w-5 h-5" />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedPhoto(null)}
+                  className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-stone-950/70 hover:bg-stone-950 text-white flex items-center justify-center transition-colors"
+                  title="Tutup Preview"
+                >
+                  <X className="w-5 h-5" />
+                </button>
 
-              <div className="max-h-[70vh] bg-black flex items-center justify-center overflow-hidden">
-                <img
-                  src={selectedPhoto.image_url || APP_ASSETS.rambakPack}
-                  alt={selectedPhoto.caption}
-                  className="w-full h-full max-h-[70vh] object-contain"
-                  referrerPolicy="no-referrer"
-                  onError={(e) => {
-                    if (e.currentTarget.src !== APP_ASSETS.rambakPack) {
-                      e.currentTarget.src = APP_ASSETS.rambakPack;
-                    }
-                  }}
-                />
-              </div>
-
-              {selectedPhoto.caption && (
-                <div className="p-4 sm:p-5 bg-stone-900 text-stone-200 border-t border-stone-800">
-                  <p className="text-sm font-medium text-white">{selectedPhoto.caption}</p>
-                  <p className="text-xs text-stone-400 mt-1">Pabrik Krupuk (Kerupuk Rambak Tisoffindo) • Jeron, Nogosari, Boyolali</p>
+                <div className="max-h-[70vh] bg-black flex items-center justify-center overflow-hidden">
+                  <img
+                    src={selectedPhoto.image_url || APP_ASSETS.rambakPack}
+                    alt={selectedPhoto.caption}
+                    className="w-full h-full max-h-[70vh] object-contain"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      if (e.currentTarget.src !== APP_ASSETS.rambakPack) {
+                        e.currentTarget.src = APP_ASSETS.rambakPack;
+                      }
+                    }}
+                  />
                 </div>
-              )}
-            </div>
-          </div>
-        )}
+
+                {selectedPhoto.caption && (
+                  <div className="p-4 sm:p-5 bg-stone-900 text-stone-200 border-t border-stone-800">
+                    <p className="text-sm font-medium text-white">{selectedPhoto.caption}</p>
+                    <p className="text-xs text-stone-400 mt-1">Pabrik Krupuk (Kerupuk Rambak Tisoffindo) • Jeron, Nogosari, Boyolali</p>
+                  </div>
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Testimonials Section */}
         <div className="pt-8 border-t border-stone-200">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-10">
+          <motion.div
+            className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={viewportOnce}
+            transition={{ duration: 0.5 }}
+          >
             <div>
               <div className="inline-flex items-center gap-1 text-xs font-semibold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full mb-2">
                 <Star className="w-3.5 h-3.5 fill-current text-amber-600" />
@@ -119,22 +152,33 @@ export const GallerySection: React.FC = () => {
               </p>
             </div>
 
-            <a
+            <motion.a
               href={companyProfile?.gmaps_url || 'https://maps.app.goo.gl/G8kHXoGYuuycJxxy7'}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs shadow-sm transition-all shrink-0 self-start sm:self-end"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <span>Lihat Semua di Google Maps</span>
               <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
+            </motion.a>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
+            variants={staggerContainer(0.1)}
+            initial="hidden"
+            whileInView="visible"
+            viewport={viewportOnce}
+          >
             {displayTestimonials.map((t) => (
-              <div
+              <motion.div
                 key={t.id}
-                className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-200/90 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow relative"
+                variants={staggerItem}
+                className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-200/90 shadow-xs flex flex-col justify-between relative"
+                whileHover={{ y: -5, boxShadow: '0 12px 32px rgba(0,0,0,0.1)' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -149,7 +193,7 @@ export const GallerySection: React.FC = () => {
                   </div>
 
                   <p className="text-stone-700 text-xs sm:text-sm italic leading-relaxed">
-                    "{t.content}"
+                    &ldquo;{t.content}&rdquo;
                   </p>
                 </div>
 
@@ -160,12 +204,11 @@ export const GallerySection: React.FC = () => {
                   </div>
                   <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
   );
 };
-
