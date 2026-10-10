@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useApp } from '../../context/AppContext';
 import { APP_ASSETS } from '../../assets/images';
 import {
@@ -144,7 +145,7 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
             const Icon = item.icon;
             const isActive = currentView === item.id;
             return (
-              <button
+              <motion.button
                 key={item.id}
                 onClick={() => setCurrentView(item.id)}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
@@ -152,6 +153,8 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
                     ? 'bg-amber-600 text-white shadow-xs'
                     : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900'
                 }`}
+                whileHover={{ x: 3 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-stone-500'}`} />
@@ -166,7 +169,7 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
                     {item.badge}
                   </span>
                 )}
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -283,59 +286,67 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
                 )}
               </button>
 
-              {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-[calc(100vw-24px)] max-w-xs sm:w-80 bg-white rounded-2xl shadow-xl border border-stone-200 p-4 z-50">
-                  <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-                    <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
-                      Peringatan Stok Menipis
-                    </h4>
-                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-bold">
-                      {criticalStockProducts.length} Produk
-                    </span>
-                  </div>
+              <AnimatePresence>
+                {notificationsOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -6 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -6 }}
+                    transition={{ duration: 0.16, ease: 'easeOut' }}
+                    className="absolute right-0 mt-2 w-[calc(100vw-24px)] max-w-xs sm:w-80 bg-white rounded-2xl shadow-xl border border-stone-200 p-4 z-50"
+                  >
+                    <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+                      <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+                        Peringatan Stok Menipis
+                      </h4>
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-bold">
+                        {criticalStockProducts.length} Produk
+                      </span>
+                    </div>
 
-                  <div className="mt-3 space-y-2 max-h-60 overflow-y-auto">
-                    {criticalStockProducts.length === 0 ? (
-                      <p className="text-xs text-stone-500 py-3 text-center">
-                        Semua stok produk dalam kondisi aman.
-                      </p>
-                    ) : (
-                      criticalStockProducts.map((p) => (
-                        <div
-                          key={p.id}
-                          onClick={() => {
-                            setCurrentView('products');
-                            setNotificationsOpen(false);
-                          }}
-                          className="p-2.5 rounded-xl bg-stone-50 hover:bg-amber-50/60 cursor-pointer border border-stone-200/60 transition-colors flex items-center justify-between gap-2"
-                        >
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold text-stone-800 truncate">{p.name}</p>
-                            <p className="text-[11px] text-stone-500">
-                              Batas min: {p.min_stock} {p.unit}
-                            </p>
+                    <div className="mt-3 space-y-2 max-h-60 overflow-y-auto">
+                      {criticalStockProducts.length === 0 ? (
+                        <p className="text-xs text-stone-500 py-3 text-center">
+                          Semua stok produk dalam kondisi aman.
+                        </p>
+                      ) : (
+                        criticalStockProducts.map((p) => (
+                          <div
+                            key={p.id}
+                            onClick={() => {
+                              setCurrentView('products');
+                              setNotificationsOpen(false);
+                            }}
+                            className="p-2.5 rounded-xl bg-stone-50 hover:bg-amber-50/60 cursor-pointer border border-stone-200/60 transition-colors flex items-center justify-between gap-2"
+                          >
+                            <div className="min-w-0">
+                              <p className="text-xs font-semibold text-stone-800 truncate">{p.name}</p>
+                              <p className="text-[11px] text-stone-500">
+                                Batas min: {p.min_stock} {p.unit}
+                              </p>
+                            </div>
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 shrink-0">
+                              Sisa: {p.stock_qty}
+                            </span>
                           </div>
-                          <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 shrink-0">
-                            Sisa: {p.stock_qty}
-                          </span>
-                        </div>
-                      ))
-                    )}
-                  </div>
+                        ))
+                      )}
+                    </div>
 
-                  {criticalStockProducts.length > 0 && (
-                    <button
-                      onClick={() => {
-                        setCurrentView('products');
-                        setNotificationsOpen(false);
-                      }}
-                      className="mt-3 w-full py-2 text-center text-xs font-semibold text-amber-700 hover:text-amber-800 bg-amber-50 rounded-lg transition-colors"
-                    >
-                      Buka Kelola Stok Produk &rarr;
-                    </button>
-                  )}
-                </div>
-              )}
+                    {criticalStockProducts.length > 0 && (
+                      <button
+                        onClick={() => {
+                          setCurrentView('products');
+                          setNotificationsOpen(false);
+                        }}
+                        className="mt-3 w-full py-2 text-center text-xs font-semibold text-amber-700 hover:text-amber-800 bg-amber-50 rounded-lg transition-colors"
+                      >
+                        Buka Kelola Stok Produk &rarr;
+                      </button>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Back to Public website */}
@@ -379,97 +390,119 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
         {/* 3. Main Content Viewport: ONLY THIS SCROLLS! */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5 lg:p-6 bg-stone-100/90">
           <div className="max-w-[1600px] w-full mx-auto pb-24 lg:pb-6 select-text">
-            {children}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentView}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </main>
       </div>
 
       {/* Mobile Navigation Drawer (Overlay on small screens) */}
-      {mobileSidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex">
-          <div
-            className="fixed inset-0 bg-stone-950/60 backdrop-blur-xs transition-opacity"
-            onClick={() => setMobileSidebarOpen(false)}
-          />
-          <div className="relative w-80 max-w-[85vw] bg-white h-full shadow-2xl p-4 flex flex-col justify-between z-10 overflow-y-auto">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-amber-600 text-white font-bold flex items-center justify-center text-sm shadow-xs">
-                    T
+      <AnimatePresence>
+        {mobileSidebarOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden flex">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-stone-950/60 backdrop-blur-xs"
+              onClick={() => setMobileSidebarOpen(false)}
+            />
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 280 }}
+              className="relative w-80 max-w-[85vw] bg-white h-full shadow-2xl p-4 flex flex-col justify-between z-10 overflow-y-auto"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-amber-600 text-white font-bold flex items-center justify-center text-sm shadow-xs">
+                      T
+                    </div>
+                    <div>
+                      <span className="font-bold text-stone-900 text-sm font-serif block">Tisoffindo Internal</span>
+                      <span className="text-[10px] text-stone-500">Menu & Administrasi</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="font-bold text-stone-900 text-sm font-serif block">Tisoffindo Internal</span>
-                    <span className="text-[10px] text-stone-500">Menu & Administrasi</span>
-                  </div>
+                  <button
+                    onClick={() => setMobileSidebarOpen(false)}
+                    className="p-2 rounded-xl text-stone-500 hover:bg-stone-100 min-w-[36px] min-h-[36px] flex items-center justify-center"
+                    aria-label="Tutup Menu"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
+
+                <div className="space-y-1">
+                  {allowedNavItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = currentView === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setCurrentView(item.id);
+                          setMobileSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-3 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
+                          isActive
+                            ? 'bg-amber-600 text-white shadow-xs'
+                            : 'text-stone-700 hover:bg-stone-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-stone-500'}`} />
+                          <span>{item.label}</span>
+                        </div>
+                        {item.badge && (
+                          <span
+                            className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              item.badgeColor || (isActive ? 'bg-amber-700 text-amber-100' : 'bg-stone-200 text-stone-800')
+                            }`}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-stone-100 space-y-2 mt-6">
                 <button
-                  onClick={() => setMobileSidebarOpen(false)}
-                  className="p-2 rounded-xl text-stone-500 hover:bg-stone-100 min-w-[36px] min-h-[36px] flex items-center justify-center"
-                  aria-label="Tutup Menu"
+                  onClick={() => {
+                    setCurrentView('company_profile');
+                    setMobileSidebarOpen(false);
+                  }}
+                  className="w-full py-2.5 px-3 rounded-xl border border-stone-200 text-stone-700 text-xs font-semibold flex items-center justify-center gap-2 hover:bg-stone-50 min-h-[44px]"
                 >
-                  <X className="w-5 h-5" />
+                  <Globe className="w-4 h-4 text-amber-600" />
+                  <span>Kunjungi Web Profil Publik</span>
+                </button>
+                <button
+                  onClick={logout}
+                  className="w-full py-2.5 px-3 rounded-xl bg-rose-50 text-rose-700 text-xs font-semibold flex items-center justify-center gap-2 hover:bg-rose-100 min-h-[44px]"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Keluar Akun ({currentUser.full_name})</span>
                 </button>
               </div>
-
-              <div className="space-y-1">
-                {allowedNavItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = currentView === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        setCurrentView(item.id);
-                        setMobileSidebarOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-3 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
-                        isActive
-                          ? 'bg-amber-600 text-white shadow-xs'
-                          : 'text-stone-700 hover:bg-stone-100'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-stone-500'}`} />
-                        <span>{item.label}</span>
-                      </div>
-                      {item.badge && (
-                        <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                            item.badgeColor || (isActive ? 'bg-amber-700 text-amber-100' : 'bg-stone-200 text-stone-800')
-                          }`}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-stone-100 space-y-2 mt-6">
-              <button
-                onClick={() => {
-                  setCurrentView('company_profile');
-                  setMobileSidebarOpen(false);
-                }}
-                className="w-full py-2.5 px-3 rounded-xl border border-stone-200 text-stone-700 text-xs font-semibold flex items-center justify-center gap-2 hover:bg-stone-50 min-h-[44px]"
-              >
-                <Globe className="w-4 h-4 text-amber-600" />
-                <span>Kunjungi Web Profil Publik</span>
-              </button>
-              <button
-                onClick={logout}
-                className="w-full py-2.5 px-3 rounded-xl bg-rose-50 text-rose-700 text-xs font-semibold flex items-center justify-center gap-2 hover:bg-rose-100 min-h-[44px]"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Keluar Akun ({currentUser.full_name})</span>
-              </button>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* Mobile Bottom Navigation Bar (Fixed at bottom on touch devices) */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200/90 shadow-lg px-2 py-1.5 flex items-center justify-around safe-area-bottom">

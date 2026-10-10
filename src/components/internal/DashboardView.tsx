@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { motion } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
+import { fadeInUp, staggerContainer, staggerItem } from '../../utils/motionVariants';
 import { useApp } from '../../context/AppContext';
 import {
   TrendingUp,
@@ -35,6 +38,7 @@ export const DashboardView: React.FC = () => {
   const [hoveredDayIndex, setHoveredDayIndex] = useState<number | null>(null);
   const [timeframe, setTimeframe] = useState<'7d' | 'month'>('7d');
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
+  const dashboardStagger = useMemo(() => staggerContainer(0.08), []);
 
   if (!currentUser) return null;
   const isAdmin = currentUser.role === 'admin';
@@ -201,9 +205,14 @@ export const DashboardView: React.FC = () => {
     : relevantSales;
 
   return (
-    <div className="space-y-6 w-full">
+    <motion.div
+      className="space-y-6 w-full"
+      variants={dashboardStagger}
+      initial="hidden"
+      animate="visible"
+    >
       {/* 0. Executive Control Header Bar */}
-      <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <motion.div variants={fadeInUp} className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 capitalize flex items-center gap-1.5 border border-stone-200/70">
@@ -246,12 +255,12 @@ export const DashboardView: React.FC = () => {
             <span>Buka Kasir / POS Baru</span>
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* 1. Top Section: Exactly 3-Column KPI Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <motion.div variants={dashboardStagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* KPI 1: Omzet Hari Ini */}
-        <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col justify-between">
+        <motion.div variants={staggerItem} whileHover={{ y: -4 }} className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
               {isAdmin ? 'Omzet Hari Ini' : 'Penjualan Saya Hari Ini'}
@@ -276,10 +285,10 @@ export const DashboardView: React.FC = () => {
               {todaySales.length > 0 ? `Rp ${avgTicketToday.toLocaleString('id-ID')}/nota` : 'Belum ada nota'}
             </span>
           </div>
-        </div>
+        </motion.div>
 
         {/* KPI 2: Akumulasi Omzet Bulan Ini */}
-        <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col justify-between">
+        <motion.div variants={staggerItem} whileHover={{ y: -4 }} className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
               {isAdmin
@@ -306,10 +315,10 @@ export const DashboardView: React.FC = () => {
               Tahun {now.getFullYear()}
             </span>
           </div>
-        </div>
+        </motion.div>
 
         {/* KPI 3: Volume Penjualan Hari Ini */}
-        <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col justify-between sm:col-span-2 lg:col-span-1">
+        <motion.div variants={staggerItem} whileHover={{ y: -4 }} className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col justify-between sm:col-span-2 lg:col-span-1">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
               Volume Penjualan Hari Ini
@@ -335,8 +344,8 @@ export const DashboardView: React.FC = () => {
               Keluar otomatis gudang
             </span>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* 2. Middle Section: 12-Column Grid (8 Columns Chart + 4 Columns Alert Panel) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -1015,6 +1024,6 @@ export const DashboardView: React.FC = () => {
           </span>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
