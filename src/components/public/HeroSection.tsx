@@ -161,6 +161,11 @@ export const HeroSection: React.FC = () => {
                   <img
                     src={APP_ASSETS.rambakPack}
                     alt="Kemasan Asli Kerupuk Rambak Sapi Tisoffindo Boyolali"
+                    width="800"
+                    height="600"
+                    fetchPriority="high"
+                    loading="eager"
+                    decoding="async"
                     className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />
