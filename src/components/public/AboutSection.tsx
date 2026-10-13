@@ -6,7 +6,7 @@ import { fadeInUp, fadeInLeft, fadeInRight, staggerContainer, staggerItem, image
 
 export const AboutSection: React.FC = () => {
   return (
-    <section id="tentang" style={{ backgroundColor: '#FAF7F2', fontFamily: 'Urbanist, sans-serif' }} className="py-20 border-b border-[#E0D6CA]">
+    <section id="tentang" style={{ backgroundColor: '#F4EFE9', fontFamily: 'Urbanist, sans-serif' }} className="py-20 border-b border-[#E0D6CA]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div

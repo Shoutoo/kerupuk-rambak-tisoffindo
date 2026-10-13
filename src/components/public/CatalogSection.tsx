@@ -33,7 +33,7 @@ export const CatalogSection: React.FC = () => {
   };
 
   return (
-    <section id="produk" className="py-20 bg-stone-50">
+    <section id="produk" className="py-20" style={{ backgroundColor: '#EAE2D8' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -47,7 +47,7 @@ export const CatalogSection: React.FC = () => {
             <ShoppingBag className="w-3.5 h-3.5 text-amber-700" />
             Katalog Produk Kami
           </motion.div>
-          <motion.h2 variants={staggerItem} className="text-3xl sm:text-4xl font-bold font-serif text-stone-900 tracking-tight">
+          <motion.h2 variants={staggerItem} className="text-3xl sm:text-4xl font-bold text-stone-900 tracking-tight" style={{ fontFamily: 'Urbanist, sans-serif' }}>
             Varian Kerupuk Rambak Tisoffindo
           </motion.h2>
           <motion.p variants={staggerItem} className="mt-3 text-stone-600 text-sm sm:text-base">
@@ -178,7 +178,7 @@ export const CatalogSection: React.FC = () => {
                     <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
                       <div>
                         <span className="text-[11px] text-stone-400 block font-medium">Harga Resmi:</span>
-                        <span className="text-base font-extrabold text-stone-900 font-serif">
+                        <span className="text-base font-extrabold text-stone-900" style={{ fontFamily: 'Urbanist, sans-serif' }}>
                           Rp {product.price.toLocaleString('id-ID')}
                         </span>
                         <span className="text-xs text-stone-500 font-normal"> /{product.unit}</span>
@@ -186,7 +186,7 @@ export const CatalogSection: React.FC = () => {
 
                       <motion.button
                         onClick={() => handleOrderWhatsApp(product)}
-                        className="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors shrink-0"
+                        className="px-3 py-2 rounded-full bg-[#1C1917] hover:bg-[#A8441A] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors shrink-0"
                         title="Pesan via WhatsApp"
                         whileHover={{ scale: 1.08 }}
                         whileTap={{ scale: 0.92 }}

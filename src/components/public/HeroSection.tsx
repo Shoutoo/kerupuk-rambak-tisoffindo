@@ -85,7 +85,7 @@ export const HeroSection: React.FC = () => {
                 '100% Kulit Sapi & Kerbau Halal',
                 'Minyak Nabati Berkualitas & Higienis',
                 'Kemasan Kedap Udara Tahan 3+ Bulan',
-                'Buka 24 Jam — Siap Kirim Seluruh RI',
+                'Buka 24 Jam, Siap Kirim Seluruh RI',
               ].map((text) => (
                 <div key={text} className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: '#A8441A' }} />

@@ -71,7 +71,7 @@ export const ContactSection: React.FC = () => {
             <MessageSquare className="w-3.5 h-3.5 text-[#F2A054]" />
             <span>Kontak & Lokasi Pabrik</span>
           </motion.div>
-          <motion.h2 variants={staggerItem} className="text-3xl sm:text-4xl font-bold font-serif text-white tracking-tight">
+          <motion.h2 variants={staggerItem} className="text-3xl sm:text-4xl font-bold text-white tracking-tight" style={{ fontFamily: 'Urbanist, sans-serif' }}>
             Kunjungi Pabrik Kami di Boyolali atau Pesan Online
           </motion.h2>
           <motion.p variants={staggerItem} className="mt-3 text-stone-300 text-sm sm:text-base leading-relaxed">
@@ -96,7 +96,7 @@ export const ContactSection: React.FC = () => {
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             >
               <div>
-                <div className="text-3xl font-extrabold text-[#F2A054]/30 font-serif mb-2">{st.num}</div>
+                <div className="text-3xl font-extrabold text-[#F2A054]/30 mb-2" style={{ fontFamily: 'Urbanist, sans-serif' }}>{st.num}</div>
                 <h4 className="text-base font-bold text-white mb-1.5">{st.title}</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">{st.desc}</p>
               </div>
@@ -129,7 +129,7 @@ export const ContactSection: React.FC = () => {
                   <span>{rating} ({reviewCount} ulasan Google)</span>
                 </a>
               </div>
-              <h3 className="text-2xl font-bold font-serif text-white">{businessName}</h3>
+              <h3 className="text-2xl font-bold text-white" style={{ fontFamily: 'Urbanist, sans-serif' }}>{businessName}</h3>
               <p className="text-stone-300 text-sm leading-relaxed">
                 Pintu kami selalu terbuka untuk Anda yang ingin mencicipi langsung kerenyahan kerupuk rambak sapi fresh dari kuali penggorengan tradisional kami.
               </p>
@@ -195,7 +195,7 @@ export const ContactSection: React.FC = () => {
                 href={`https://wa.me/${waNumber}?text=Halo%20Tisoffindo,%20saya%20mau%20order%20kerupuk%20rambak%20sapi%20asli.`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 transition-all"
+                className="w-full py-3.5 px-4 rounded-xl bg-[#1C1917] hover:bg-[#A8441A] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-stone-950/40 transition-all border border-[#3E302A]"
                 whileHover={{ scale: 1.03, y: -2 }}
                 whileTap={{ scale: 0.97 }}
               >
@@ -215,7 +215,7 @@ export const ContactSection: React.FC = () => {
           >
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-700/80 pb-3">
               <div>
-                <h4 className="text-base sm:text-lg font-bold font-serif text-white flex items-center gap-2">
+                <h4 className="text-base sm:text-lg font-bold text-white flex items-center gap-2" style={{ fontFamily: 'Urbanist, sans-serif' }}>
                   <MapPin className="w-4 h-4 text-amber-400" />
                   <span>Peta Lokasi Google Maps</span>
                 </h4>

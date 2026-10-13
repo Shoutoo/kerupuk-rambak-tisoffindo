@@ -14,7 +14,7 @@ export const GallerySection: React.FC = () => {
   const displayTestimonials = testimonials && testimonials.length > 0 ? testimonials : [];
 
   return (
-    <section id="galeri" className="py-16 sm:py-20 bg-stone-50 border-b border-stone-200">
+    <section id="galeri" className="py-16 sm:py-20 border-b border-[#E0D6CA]" style={{ backgroundColor: '#F4EFE9' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
@@ -28,7 +28,7 @@ export const GallerySection: React.FC = () => {
             <Camera className="w-3.5 h-3.5 text-amber-700" />
             <span>Dokumentasi & Ulasan Nyata</span>
           </motion.div>
-          <motion.h2 variants={staggerItem} className="text-3xl sm:text-4xl font-bold font-serif text-stone-900 tracking-tight">
+          <motion.h2 variants={staggerItem} className="text-3xl sm:text-4xl font-bold text-stone-900 tracking-tight" style={{ fontFamily: 'Urbanist, sans-serif' }}>
             Dari Sentra Produksi Boyolali ke Meja Makan Anda
           </motion.h2>
           <motion.p variants={staggerItem} className="mt-3 text-stone-600 text-sm sm:text-base leading-relaxed">
@@ -131,7 +131,7 @@ export const GallerySection: React.FC = () => {
         </AnimatePresence>
 
         {/* Testimonials Section */}
-        <div className="pt-8 border-t border-stone-200">
+        <div className="pt-8 border-t border-[#E0D6CA]">
           <motion.div
             className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-10"
             initial={{ opacity: 0, y: 20 }}
@@ -144,7 +144,7 @@ export const GallerySection: React.FC = () => {
                 <Star className="w-3.5 h-3.5 fill-current text-amber-600" />
                 <span>Google Maps Review (Rating {companyProfile?.rating ? Number(companyProfile.rating).toFixed(1).replace('.', ',') : '5,0'} / 5.0)</span>
               </div>
-              <h3 className="text-2xl sm:text-3xl font-bold font-serif text-stone-900">
+              <h3 className="text-2xl sm:text-3xl font-bold text-stone-900" style={{ fontFamily: 'Urbanist, sans-serif' }}>
                 Ulasan Jujur Pelanggan & Pengunjung
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 mt-1">
