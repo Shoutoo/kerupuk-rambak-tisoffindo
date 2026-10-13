@@ -157,7 +157,7 @@ export const ContactSection: React.FC = () => {
                   title: 'Jam Operasional:',
                   content: (
                     <>
-                      <p className="text-xs sm:text-sm text-stone-300 mt-1 font-medium text-emerald-400">{operatingHours}</p>
+                      <p className="text-xs sm:text-sm text-stone-300 mt-1 font-medium">{operatingHours}</p>
                       <p className="text-[11px] text-stone-400 mt-0.5">Layanan pemesanan, pengiriman, dan kunjungan pabrik standby setiap hari.</p>
                     </>
                   ),
@@ -195,7 +195,7 @@ export const ContactSection: React.FC = () => {
                 href={`https://wa.me/${waNumber}?text=Halo%20Tisoffindo,%20saya%20mau%20order%20kerupuk%20rambak%20sapi%20asli.`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3.5 px-4 rounded-xl bg-[#1C1917] hover:bg-[#A8441A] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-stone-950/40 transition-all border border-[#3E302A]"
+                className="w-full py-3.5 px-4 rounded-xl bg-[#A8441A] hover:bg-[#8F3713] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-950/40 transition-all border border-[#C25222]/30"
                 whileHover={{ scale: 1.03, y: -2 }}
                 whileTap={{ scale: 0.97 }}
               >

@@ -738,8 +738,8 @@ export const CompanyProfileSettingsView: React.FC = () => {
                 />
               </div>
               <div className="flex-1 text-center md:text-left space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-900 text-xs font-semibold border border-blue-200">
-                  <Award className="w-3.5 h-3.5 text-blue-600" />
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-900 text-xs font-semibold border border-amber-200/80">
+                  <Award className="w-3.5 h-3.5 text-amber-700" />
                   <span>Logo Resmi Brand Tisoffindo</span>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-stone-900">
@@ -835,7 +835,7 @@ export const CompanyProfileSettingsView: React.FC = () => {
                 </div>
                 <div className="p-3.5 flex-1 flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full inline-block mb-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full inline-block mb-1.5">
                       Partai & Grosir
                     </span>
                     <h4 className="font-bold text-stone-900 text-xs sm:text-sm">Tumpukan Stok Grosir</h4>

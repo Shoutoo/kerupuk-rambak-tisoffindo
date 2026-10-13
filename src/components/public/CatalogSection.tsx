@@ -178,7 +178,7 @@ export const CatalogSection: React.FC = () => {
                     <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
                       <div>
                         <span className="text-[11px] text-stone-400 block font-medium">Harga Resmi:</span>
-                        <span className="text-base font-extrabold text-stone-900" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                        <span className="text-base font-extrabold font-mono text-stone-900">
                           Rp {product.price.toLocaleString('id-ID')}
                         </span>
                         <span className="text-xs text-stone-500 font-normal"> /{product.unit}</span>

@@ -70,7 +70,7 @@ export const StockMovementView: React.FC = () => {
           <button
             onClick={() => setFilterType('adjustment')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-              filterType === 'adjustment' ? 'bg-white text-blue-800 shadow-2xs' : 'text-stone-600 hover:text-stone-900'
+              filterType === 'adjustment' ? 'bg-white text-stone-900 shadow-2xs font-bold' : 'text-stone-600 hover:text-stone-900'
             }`}
           >
             Penyesuaian
@@ -155,8 +155,8 @@ export const StockMovementView: React.FC = () => {
                       Keluar
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 shrink-0">
-                      <SlidersHorizontal className="w-3 h-3" />
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 text-stone-800 border border-stone-200/80 shrink-0">
+                      <SlidersHorizontal className="w-3 h-3 text-stone-600" />
                       Penyesuaian
                     </span>
                   )}
@@ -268,8 +268,8 @@ export const StockMovementView: React.FC = () => {
                             Keluar (Jual)
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
-                            <SlidersHorizontal className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 text-stone-800 border border-stone-200/80">
+                            <SlidersHorizontal className="w-3 h-3 text-stone-600" />
                             Penyesuaian
                           </span>
                         )}

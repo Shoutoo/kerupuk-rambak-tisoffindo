@@ -268,7 +268,7 @@ export const ReportsView: React.FC = () => {
         <div className="bg-white rounded-2xl border border-stone-200/90 p-4 shadow-2xs">
           <div className="flex items-center justify-between text-stone-500 text-xs font-semibold">
             <span>Nilai Rata-rata per Transaksi</span>
-            <Package className="w-4 h-4 text-blue-600" />
+            <Package className="w-4 h-4 text-amber-700" />
           </div>
           <p className="text-2xl font-bold font-mono text-stone-900 mt-2">
             Rp {avgTransaksi.toLocaleString('id-ID')}
