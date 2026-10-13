@@ -319,7 +319,7 @@ export const PosView: React.FC = () => {
                   </div>
 
                   <div className="mt-2.5 pt-2 border-t border-stone-100 flex items-center justify-between">
-                    <span className="text-xs font-extrabold text-stone-900 font-serif">
+                    <span className="text-xs font-extrabold text-stone-900 font-mono">
                       Rp {p.price.toLocaleString('id-ID')}
                     </span>
                     <button
@@ -352,7 +352,7 @@ export const PosView: React.FC = () => {
           <div className="flex items-center justify-between pb-3 border-b border-stone-100">
             <div className="flex items-center gap-2">
               <ShoppingCart className="w-5 h-5 text-amber-600" />
-              <h3 className="font-bold text-stone-900 text-sm font-serif">Keranjang Belanja</h3>
+              <h3 className="font-bold text-stone-900 text-sm">Keranjang Belanja</h3>
               <span className="text-[11px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 font-bold">
                 {cart.reduce((a, b) => a + b.quantity, 0)} item
               </span>
@@ -551,7 +551,7 @@ export const PosView: React.FC = () => {
                 </div>
                 <div className="flex justify-between text-stone-900 font-extrabold text-base pt-1 border-t border-stone-200">
                   <span>Total Bayar:</span>
-                  <span className="text-amber-800 font-serif">
+                  <span className="text-amber-800 font-mono">
                     Rp {grandTotal.toLocaleString('id-ID')}
                   </span>
                 </div>

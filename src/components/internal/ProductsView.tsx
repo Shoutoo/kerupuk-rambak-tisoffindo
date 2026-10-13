@@ -147,7 +147,7 @@ export const ProductsView: React.FC = () => {
       <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold font-serif text-stone-900">Data Produk & Inventaris Stok</h2>
+            <h2 className="text-xl font-bold text-stone-900">Data Produk & Inventaris Stok</h2>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 font-semibold">
               {products.length} Total Varian
             </span>
@@ -232,8 +232,27 @@ export const ProductsView: React.FC = () => {
       {/* Mobile Cards (md:hidden) */}
       <div className="md:hidden space-y-3">
         {filtered.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-stone-200/90 p-8 text-center text-stone-400">
-            Tidak ada produk yang cocok dengan pencarian / filter.
+          <div className="bg-white rounded-2xl border border-stone-200/90 p-8 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center text-stone-400 mx-auto mb-3">
+              <Package className="w-6 h-6" />
+            </div>
+            <p className="font-bold text-stone-800 text-sm">Tidak ada produk ditemukan</p>
+            <p className="text-xs text-stone-500 mt-1 mb-4">
+              Tidak ada produk yang cocok dengan pencarian atau filter yang dipilih.
+            </p>
+            {(search || categoryFilter !== 'all' || stockStatusFilter !== 'all') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch('');
+                  setCategoryFilter('all');
+                  setStockStatusFilter('all');
+                }}
+                className="px-3.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors"
+              >
+                Reset Filter
+              </button>
+            )}
           </div>
         ) : (
           filtered.map((prod) => {
@@ -369,7 +388,7 @@ export const ProductsView: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[720px]">
             <thead>
-              <tr className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase tracking-wider">
+              <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold uppercase tracking-wider text-[11px]">
                 <th className="py-3 px-4">Produk</th>
                 <th className="py-3 px-3">Kategori</th>
                 <th className="py-3 px-3">Harga Jual</th>
@@ -382,8 +401,29 @@ export const ProductsView: React.FC = () => {
             <tbody className="divide-y divide-stone-100">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-stone-400">
-                    Tidak ada produk yang cocok.
+                  <td colSpan={7} className="py-12 text-center">
+                    <div className="max-w-xs mx-auto flex flex-col items-center justify-center">
+                      <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center text-stone-400 mb-3">
+                        <Package className="w-6 h-6" />
+                      </div>
+                      <p className="font-bold text-stone-800 text-sm">Tidak ada produk ditemukan</p>
+                      <p className="text-xs text-stone-500 mt-1 mb-4">
+                        Tidak ada produk yang cocok dengan pencarian atau filter yang dipilih.
+                      </p>
+                      {(search || categoryFilter !== 'all' || stockStatusFilter !== 'all') && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearch('');
+                            setCategoryFilter('all');
+                            setStockStatusFilter('all');
+                          }}
+                          className="px-3.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors"
+                        >
+                          Reset Filter
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -485,31 +525,37 @@ export const ProductsView: React.FC = () => {
 
                             {/* Stock Adjustment button */}
                             <button
+                              type="button"
                               onClick={() => openStockModal(prod, 'adjustment')}
-                              className="p-1.5 rounded-md hover:bg-stone-100 text-stone-600 transition-colors"
+                              className="p-1.5 min-w-[32px] min-h-[32px] inline-flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-600 transition-colors focus-visible:ring-2 focus-visible:ring-amber-500"
                               title="Penyesuaian Stok"
+                              aria-label={`Penyesuaian stok ${prod.name}`}
                             >
                               <SlidersHorizontal className="w-3.5 h-3.5" />
                             </button>
 
                             {/* Edit */}
                             <button
+                              type="button"
                               onClick={() => openEditModal(prod)}
-                              className="p-1.5 rounded-md hover:bg-stone-100 text-stone-600 transition-colors"
+                              className="p-1.5 min-w-[32px] min-h-[32px] inline-flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-600 transition-colors focus-visible:ring-2 focus-visible:ring-amber-500"
                               title="Edit Data Produk"
+                              aria-label={`Edit produk ${prod.name}`}
                             >
                               <Edit className="w-3.5 h-3.5" />
                             </button>
 
                             {/* Delete */}
                             <button
+                              type="button"
                               onClick={() => {
                                 if (window.confirm(`Hapus produk "${prod.name}"?`)) {
                                   deleteProduct(prod.id);
                                 }
                               }}
-                              className="p-1.5 rounded-md hover:bg-rose-50 text-rose-600 transition-colors"
+                              className="p-1.5 min-w-[32px] min-h-[32px] inline-flex items-center justify-center rounded-lg hover:bg-rose-50 text-rose-600 transition-colors focus-visible:ring-2 focus-visible:ring-rose-500"
                               title="Hapus Produk"
+                              aria-label={`Hapus produk ${prod.name}`}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -530,7 +576,7 @@ export const ProductsView: React.FC = () => {
         <div className="fixed inset-0 z-50 bg-stone-950/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
-              <h3 className="font-bold text-stone-900 text-base font-serif">
+              <h3 className="font-bold text-stone-900 text-base">
                 {editingProduct ? 'Ubah Data Produk' : 'Tambah Produk Rambak Baru'}
               </h3>
               <button
@@ -680,7 +726,7 @@ export const ProductsView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-xs"
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 active:scale-[0.98] text-white shadow-xs transition-all"
                 >
                   Simpan Produk
                 </button>
@@ -756,7 +802,7 @@ export const ProductsView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white"
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 active:scale-[0.98] text-white transition-all shadow-xs"
                 >
                   Simpan Perubahan
                 </button>

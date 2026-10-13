@@ -31,7 +31,7 @@ export const StockMovementView: React.FC = () => {
       <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold font-serif text-stone-900">Riwayat Mutasi Stok</h2>
+            <h2 className="text-xl font-bold text-stone-900">Riwayat Mutasi Stok</h2>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 font-semibold">
               {stockMovements.length} Log Mutasi
             </span>
@@ -97,8 +97,26 @@ export const StockMovementView: React.FC = () => {
       {/* Mobile Card List */}
       <div className="md:hidden space-y-3">
         {filteredMovements.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-stone-200/90 p-8 text-center text-stone-400">
-            Tidak ada catatan mutasi stok yang cocok.
+          <div className="bg-white rounded-2xl border border-stone-200/90 p-8 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center text-stone-400 mx-auto mb-3">
+              <ArrowLeftRight className="w-6 h-6" />
+            </div>
+            <p className="font-bold text-stone-800 text-sm">Tidak ada mutasi stok ditemukan</p>
+            <p className="text-xs text-stone-500 mt-1 mb-4">
+              Tidak ada catatan mutasi stok yang sesuai dengan filter atau kata kunci.
+            </p>
+            {(search || filterType !== 'all') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch('');
+                  setFilterType('all');
+                }}
+                className="px-3.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors"
+              >
+                Reset Filter
+              </button>
+            )}
           </div>
         ) : (
           filteredMovements.map((item) => {
@@ -183,7 +201,7 @@ export const StockMovementView: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[650px]">
             <thead>
-              <tr className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase tracking-wider">
+              <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold uppercase tracking-wider text-[11px]">
                 <th className="py-3 px-4">Waktu & Tanggal</th>
                 <th className="py-3 px-3">Tipe Mutasi</th>
                 <th className="py-3 px-3">Nama Produk</th>
@@ -195,8 +213,28 @@ export const StockMovementView: React.FC = () => {
             <tbody className="divide-y divide-stone-100">
               {filteredMovements.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-stone-400">
-                    Tidak ada catatan mutasi stok yang cocok.
+                  <td colSpan={6} className="py-12 text-center">
+                    <div className="max-w-xs mx-auto flex flex-col items-center justify-center">
+                      <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center text-stone-400 mb-3">
+                        <ArrowLeftRight className="w-6 h-6" />
+                      </div>
+                      <p className="font-bold text-stone-800 text-sm">Tidak ada mutasi stok ditemukan</p>
+                      <p className="text-xs text-stone-500 mt-1 mb-4">
+                        Tidak ada catatan mutasi stok yang sesuai dengan filter atau kata kunci.
+                      </p>
+                      {(search || filterType !== 'all') && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearch('');
+                            setFilterType('all');
+                          }}
+                          className="px-3.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors"
+                        >
+                          Reset Filter
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (

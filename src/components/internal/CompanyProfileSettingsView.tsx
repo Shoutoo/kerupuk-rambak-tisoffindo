@@ -137,7 +137,7 @@ export const CompanyProfileSettingsView: React.FC = () => {
             </span>
             <span className="text-xs text-stone-500">Tersimpan di tabel company_profile</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 mt-1">
+          <h2 className="text-xl sm:text-2xl font-bold text-stone-900 mt-1">
             Pengaturan Profil Usaha, Galeri & Testimoni
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 mt-0.5">
@@ -742,7 +742,7 @@ export const CompanyProfileSettingsView: React.FC = () => {
                   <Award className="w-3.5 h-3.5 text-blue-600" />
                   <span>Logo Resmi Brand Tisoffindo</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold font-serif text-stone-900">
+                <h3 className="text-xl sm:text-2xl font-bold text-stone-900">
                   Lambang & Identitas Visual Pabrik Krupuk Tisoffindo Boyolali
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-600 leading-relaxed max-w-2xl">
@@ -782,7 +782,7 @@ export const CompanyProfileSettingsView: React.FC = () => {
                 <PackageCheck className="w-3.5 h-3.5 text-amber-700" />
                 Aset Kemasan Riil Terintegrasi
               </div>
-              <h3 className="text-lg sm:text-xl font-bold font-serif text-stone-900">
+              <h3 className="text-lg sm:text-xl font-bold text-stone-900">
                 Dokumentasi Kemasan Asli & Proses Produksi Tisoffindo
               </h3>
               <p className="text-xs sm:text-sm text-stone-600">

@@ -62,7 +62,7 @@ export const LoginView: React.FC = () => {
               referrerPolicy="no-referrer"
             />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight" style={{ fontFamily: 'Urbanist, sans-serif' }}>
             Sistem Internal Tisoffindo
           </h2>
           <p className="mt-1.5 text-xs sm:text-sm text-stone-500">

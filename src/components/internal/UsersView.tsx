@@ -75,7 +75,7 @@ export const UsersView: React.FC = () => {
       <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold font-serif text-stone-900">
+            <h2 className="text-xl font-bold text-stone-900">
               Manajemen Petugas Kasir & Audit Log
             </h2>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-semibold">
@@ -221,7 +221,7 @@ export const UsersView: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs min-w-[680px]">
                 <thead>
-                  <tr className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase tracking-wider">
+                  <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold uppercase tracking-wider text-[11px]">
                     <th className="py-3 px-4">Nama Lengkap</th>
                     <th className="py-3 px-3">Email Pengguna</th>
                     <th className="py-3 px-3">No. Handphone</th>
@@ -276,24 +276,28 @@ export const UsersView: React.FC = () => {
                           </span>
                         </td>
                         <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="flex items-center justify-end gap-1.5">
                             <button
+                              type="button"
                               onClick={() => openEditUser(u)}
-                              className="p-1.5 rounded-md hover:bg-stone-100 text-stone-600"
+                              className="p-1.5 min-w-[32px] min-h-[32px] inline-flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-600 transition-colors focus-visible:ring-2 focus-visible:ring-amber-500"
                               title="Edit Data User"
+                              aria-label={`Edit akun ${u.full_name}`}
                             >
                               <Edit className="w-3.5 h-3.5" />
                             </button>
 
                             {!isCurrent && (
                               <button
+                                type="button"
                                 onClick={() => toggleUserStatus(u.id)}
-                                className={`p-1.5 rounded-md transition-colors ${
+                                className={`p-1.5 min-w-[32px] min-h-[32px] inline-flex items-center justify-center rounded-lg transition-colors focus-visible:ring-2 ${
                                   u.is_active
-                                    ? 'hover:bg-rose-50 text-rose-600'
-                                    : 'hover:bg-emerald-50 text-emerald-600'
+                                    ? 'hover:bg-rose-50 text-rose-600 focus-visible:ring-rose-500'
+                                    : 'hover:bg-emerald-50 text-emerald-600 focus-visible:ring-emerald-500'
                                 }`}
                                 title={u.is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun'}
+                                aria-label={u.is_active ? `Nonaktifkan akun ${u.full_name}` : `Aktifkan akun ${u.full_name}`}
                               >
                                 <Power className="w-3.5 h-3.5" />
                               </button>
@@ -339,7 +343,7 @@ export const UsersView: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs min-w-[600px]">
                 <thead>
-                  <tr className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase tracking-wider">
+                  <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold uppercase tracking-wider text-[11px]">
                     <th className="py-3 px-4">Waktu</th>
                     <th className="py-3 px-3">Tindakan / Aksi</th>
                     <th className="py-3 px-3">Pelaksana</th>
@@ -373,7 +377,7 @@ export const UsersView: React.FC = () => {
         <div className="fixed inset-0 z-50 bg-stone-950/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-stone-200">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
-              <h3 className="font-bold text-stone-900 text-sm font-serif">
+              <h3 className="font-bold text-stone-900 text-sm">
                 {editingUser ? 'Ubah Data Akun' : 'Tambah Akun Petugas Baru'}
               </h3>
               <button
@@ -463,7 +467,7 @@ export const UsersView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-xs"
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 active:scale-[0.98] text-white shadow-xs transition-all"
                 >
                   Simpan Akun
                 </button>

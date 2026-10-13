@@ -22,9 +22,13 @@ export const ReportsView: React.FC = () => {
   const [selectedPetugas, setSelectedPetugas] = useState<string>('all');
   const [selectedProduct, setSelectedProduct] = useState<string>('all');
 
-  // Today reference: 2026-09-22
-  const todayStr = '2026-09-22';
-  const monthStr = '2026-09';
+  // Dynamic date calculation
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const monthStr = now.toISOString().slice(0, 7);
+  const sevenDaysAgo = new Date(now);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const sevenDaysAgoStr = sevenDaysAgo.toISOString().slice(0, 10);
 
   // Base sales filtered by role permission
   const baseSales = isAdmin ? sales : sales.filter((s) => s.created_by_id === currentUser?.id);
@@ -38,7 +42,7 @@ export const ReportsView: React.FC = () => {
     if (period === 'today') {
       matchPeriod = s.created_at.startsWith(todayStr);
     } else if (period === '7days') {
-      matchPeriod = s.created_at >= '2026-09-15';
+      matchPeriod = s.created_at >= sevenDaysAgoStr;
     } else if (period === 'month') {
       matchPeriod = s.created_at.startsWith(monthStr);
     }
@@ -129,7 +133,7 @@ export const ReportsView: React.FC = () => {
       <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold font-serif text-stone-900">
+            <h2 className="text-xl font-bold text-stone-900">
               {isAdmin ? 'Laporan & Rekap Penjualan Bisnis' : 'Rekap Penjualan Pribadi'}
             </h2>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-semibold">
@@ -244,7 +248,7 @@ export const ReportsView: React.FC = () => {
             <span>Total Omzet Penjualan</span>
             <CircleDollarSign className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-2xl font-bold font-serif text-stone-900 mt-2">
+          <p className="text-2xl font-bold font-mono text-stone-900 mt-2">
             Rp {totalOmzet.toLocaleString('id-ID')}
           </p>
           <p className="text-[11px] text-stone-400 mt-1">Status transaksi completed</p>
@@ -255,8 +259,8 @@ export const ReportsView: React.FC = () => {
             <span>Jumlah Transaksi</span>
             <TrendingUp className="w-4 h-4 text-amber-600" />
           </div>
-          <p className="text-2xl font-bold font-serif text-stone-900 mt-2">
-            {totalTransaksi} <span className="text-sm font-normal text-stone-500">faktur</span>
+          <p className="text-2xl font-bold font-mono text-stone-900 mt-2">
+            {totalTransaksi} <span className="text-sm font-normal text-stone-500 font-sans">faktur</span>
           </p>
           <p className="text-[11px] text-stone-400 mt-1">Berhasil dilayani di kasir</p>
         </div>
@@ -266,7 +270,7 @@ export const ReportsView: React.FC = () => {
             <span>Nilai Rata-rata per Transaksi</span>
             <Package className="w-4 h-4 text-blue-600" />
           </div>
-          <p className="text-2xl font-bold font-serif text-stone-900 mt-2">
+          <p className="text-2xl font-bold font-mono text-stone-900 mt-2">
             Rp {avgTransaksi.toLocaleString('id-ID')}
           </p>
           <p className="text-[11px] text-stone-400 mt-1">Basket size belanja pembeli</p>
@@ -340,7 +344,7 @@ export const ReportsView: React.FC = () => {
           {Object.entries(paymentBreakdown).map(([method, amount]) => (
             <div key={method} className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80">
               <p className="text-xs font-semibold text-stone-600">{method}</p>
-              <p className="text-base font-bold font-serif text-stone-900 mt-1">
+              <p className="text-base font-bold font-mono text-stone-900 mt-1">
                 Rp {amount.toLocaleString('id-ID')}
               </p>
               <p className="text-[11px] text-stone-400 mt-0.5">

@@ -235,7 +235,7 @@ export const DashboardView: React.FC = () => {
             </span>
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
             Dashboard Kontrol Penjualan & Inventaris
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 mt-0.5 max-w-2xl">
@@ -938,7 +938,7 @@ export const DashboardView: React.FC = () => {
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs min-w-[680px]">
             <thead>
-              <tr className="border-b border-stone-200 text-stone-400 font-semibold uppercase tracking-wider text-[11px]">
+              <tr className="border-b border-stone-200 text-stone-600 font-bold uppercase tracking-wider text-[11px] bg-stone-50/50">
                 <th className="py-2.5 px-3">No. Faktur</th>
                 <th className="py-2.5 px-3 whitespace-nowrap">Waktu</th>
                 <th className="py-2.5 px-3">Pelanggan</th>

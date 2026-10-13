@@ -126,7 +126,7 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
             />
           </div>
           <div className="min-w-0">
-            <span className="font-bold text-stone-900 text-base tracking-tight font-serif truncate block leading-tight">
+            <span className="font-bold text-stone-900 text-base tracking-tight truncate block leading-tight">
               Tisoffindo
             </span>
             <span className="text-[11px] text-stone-500 block leading-tight truncate">
@@ -148,7 +148,7 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
               <motion.button
                 key={item.id}
                 onClick={() => setCurrentView(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
                   isActive
                     ? 'bg-amber-600 text-white shadow-xs'
                     : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900'
@@ -225,7 +225,7 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-              className="lg:hidden p-2 rounded-xl text-stone-600 hover:bg-stone-100 min-w-[40px] min-h-[40px] flex items-center justify-center transition-colors"
+              className="lg:hidden p-2 rounded-xl text-stone-600 hover:bg-stone-100 min-w-[40px] min-h-[40px] flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               aria-label="Buka Menu Navigasi"
             >
               <Menu className="w-5 h-5" />
@@ -243,7 +243,7 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="font-bold text-stone-900 text-sm font-serif truncate">
+              <span className="font-bold text-stone-900 text-sm truncate">
                 Tisoffindo
               </span>
             </div>
@@ -431,7 +431,7 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
                       T
                     </div>
                     <div>
-                      <span className="font-bold text-stone-900 text-sm font-serif block">Tisoffindo Internal</span>
+                      <span className="font-bold text-stone-900 text-sm block">Tisoffindo Internal</span>
                       <span className="text-[10px] text-stone-500">Menu & Administrasi</span>
                     </div>
                   </div>
@@ -455,7 +455,7 @@ export const InternalLayout: React.FC<InternalLayoutProps> = ({ children }) => {
                           setCurrentView(item.id);
                           setMobileSidebarOpen(false);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-3 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
+                        className={`w-full flex items-center justify-between px-3 py-3 rounded-xl text-xs font-semibold min-h-[44px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
                           isActive
                             ? 'bg-amber-600 text-white shadow-xs'
                             : 'text-stone-700 hover:bg-stone-100'

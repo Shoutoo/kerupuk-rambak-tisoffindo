@@ -57,7 +57,7 @@ export const SalesHistoryView: React.FC = () => {
       <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold font-serif text-stone-900">Daftar Transaksi Penjualan</h2>
+            <h2 className="text-xl font-bold text-stone-900">Daftar Transaksi Penjualan</h2>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 font-semibold">
               {accessibleSales.length} Total Faktur
             </span>
@@ -117,8 +117,26 @@ export const SalesHistoryView: React.FC = () => {
       {/* Mobile Card List */}
       <div className="md:hidden space-y-3">
         {filteredSales.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-stone-200/90 p-8 text-center text-stone-400">
-            Tidak ada transaksi yang cocok dengan kriteria filter.
+          <div className="bg-white rounded-2xl border border-stone-200/90 p-8 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center text-stone-400 mx-auto mb-3">
+              <Receipt className="w-6 h-6" />
+            </div>
+            <p className="font-bold text-stone-800 text-sm">Tidak ada transaksi ditemukan</p>
+            <p className="text-xs text-stone-500 mt-1 mb-4">
+              Tidak ada transaksi yang cocok dengan kriteria filter saat ini.
+            </p>
+            {(search || statusFilter !== 'all') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch('');
+                  setStatusFilter('all');
+                }}
+                className="px-3.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors"
+              >
+                Reset Filter
+              </button>
+            )}
           </div>
         ) : (
           filteredSales.map((sale) => {
@@ -231,7 +249,7 @@ export const SalesHistoryView: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[760px]">
             <thead>
-              <tr className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase tracking-wider">
+              <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold uppercase tracking-wider text-[11px]">
                 <th className="py-3 px-4">No. Faktur</th>
                 <th className="py-3 px-3">Waktu Transaksi</th>
                 <th className="py-3 px-3">Pelanggan</th>
@@ -245,8 +263,28 @@ export const SalesHistoryView: React.FC = () => {
             <tbody className="divide-y divide-stone-100">
               {filteredSales.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-stone-400">
-                    Tidak ada transaksi yang cocok dengan kriteria filter.
+                  <td colSpan={8} className="py-12 text-center">
+                    <div className="max-w-xs mx-auto flex flex-col items-center justify-center">
+                      <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center text-stone-400 mb-3">
+                        <Receipt className="w-6 h-6" />
+                      </div>
+                      <p className="font-bold text-stone-800 text-sm">Tidak ada transaksi ditemukan</p>
+                      <p className="text-xs text-stone-500 mt-1 mb-4">
+                        Tidak ada transaksi yang cocok dengan kriteria filter saat ini.
+                      </p>
+                      {(search || statusFilter !== 'all') && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearch('');
+                            setStatusFilter('all');
+                          }}
+                          className="px-3.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors"
+                        >
+                          Reset Filter
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -299,18 +337,22 @@ export const SalesHistoryView: React.FC = () => {
                         <div className="flex items-center justify-end gap-1.5">
                           {/* Struk / Cetak Ulang (FR-24) */}
                           <button
+                            type="button"
                             onClick={() => setActiveReceipt(sale)}
-                            className="p-1.5 rounded-md hover:bg-stone-100 text-stone-700 transition-colors"
+                            className="p-1.5 min-w-[32px] min-h-[32px] inline-flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-700 transition-colors focus-visible:ring-2 focus-visible:ring-amber-500"
                             title="Buka / Cetak Struk Transaksi"
+                            aria-label={`Cetak struk faktur ${sale.invoice_no}`}
                           >
                             <Printer className="w-3.5 h-3.5 text-amber-700" />
                           </button>
 
                           {/* Detail Modal */}
                           <button
+                            type="button"
                             onClick={() => setSelectedSaleDetail(sale)}
-                            className="p-1.5 rounded-md hover:bg-stone-100 text-stone-600 transition-colors"
+                            className="p-1.5 min-w-[32px] min-h-[32px] inline-flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-600 transition-colors focus-visible:ring-2 focus-visible:ring-amber-500"
                             title="Lihat Rincian Item"
+                            aria-label={`Lihat rincian transaksi ${sale.invoice_no}`}
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </button>
@@ -318,12 +360,14 @@ export const SalesHistoryView: React.FC = () => {
                           {/* Cancel Sale: Admin Only (FR-23) */}
                           {isAdmin && sale.status === 'completed' && (
                             <button
+                              type="button"
                               onClick={() => {
                                 setCancelModalSale(sale);
                                 setCancelReason('');
                               }}
-                              className="p-1.5 rounded-md hover:bg-rose-50 text-rose-600 transition-colors"
+                              className="p-1.5 min-w-[32px] min-h-[32px] inline-flex items-center justify-center rounded-lg hover:bg-rose-50 text-rose-600 transition-colors focus-visible:ring-2 focus-visible:ring-rose-500"
                               title="Batalkan Transaksi (Void & Kembalikan Stok)"
+                              aria-label={`Batalkan transaksi ${sale.invoice_no}`}
                             >
                               <XCircle className="w-3.5 h-3.5" />
                             </button>
@@ -388,7 +432,7 @@ export const SalesHistoryView: React.FC = () => {
 
             <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-xs">
               <span className="font-semibold text-stone-600">Total Transaksi:</span>
-              <span className="font-serif font-extrabold text-stone-900 text-base">
+              <span className="font-mono font-extrabold text-stone-900 text-base">
                 Rp {selectedSaleDetail.total_amount.toLocaleString('id-ID')}
               </span>
             </div>
