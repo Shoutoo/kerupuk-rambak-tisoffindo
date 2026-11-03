@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 
 // Public components
@@ -9,6 +9,8 @@ import { CatalogSection } from './components/public/CatalogSection';
 import { GallerySection } from './components/public/GallerySection';
 import { ContactSection } from './components/public/ContactSection';
 import { PublicFooter } from './components/public/PublicFooter';
+
+const ChatWidget = lazy(() => import('./components/ChatWidget'));
 
 // Auth component
 import { LoginView } from './components/auth/LoginView';
@@ -41,6 +43,9 @@ const AppContent: React.FC = () => {
           <ContactSection />
         </main>
         <PublicFooter />
+        <Suspense fallback={null}>
+          <ChatWidget />
+        </Suspense>
       </div>
     );
   }

@@ -30,6 +30,7 @@ export const ContactSection: React.FC = () => {
   const rating = companyProfile?.rating ? Number(companyProfile.rating).toFixed(1).replace('.', ',') : '5,0';
   const reviewCount = companyProfile?.review_count || 6;
 
+  const telegramUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME?.replace(/^@/, '');
   const cleanPhone = phone.replace(/[^0-9]/g, '');
   const waNumber = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone;
 
@@ -203,6 +204,16 @@ export const ContactSection: React.FC = () => {
                 <span>Chat Langsung via WhatsApp ({phone})</span>
               </motion.a>
             </motion.div>
+            {telegramUsername && /^[A-Za-z0-9_]{5,32}$/.test(telegramUsername) && (
+              <a
+                href={`https://t.me/${telegramUsername}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center rounded-xl border border-[#F2A054] px-4 py-3 font-bold text-sm text-[#F2A054] hover:bg-[#F2A054]/10"
+              >
+                Tanya produk via bot Telegram
+              </a>
+            )}
           </motion.div>
 
           {/* Right Column: Google Maps Embed Card */}

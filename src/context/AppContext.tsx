@@ -27,12 +27,15 @@ import {
 import { getSupabaseClient } from '../utils/supabaseClient';
 import { resolveProductImageUrl } from '../utils/productImages';
 
+const isUuid = (value?: string | null): boolean =>
+  Boolean(value && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value));
+
 interface AppContextType {
   // Navigation & Session
   currentView: string;
   setCurrentView: (view: string) => void;
   currentUser: User | null;
-  login: (email: string, role?: UserRole) => boolean;
+  login: (email: string, password?: string) => Promise<boolean>;
   quickLogin: (role: UserRole) => void;
   logout: () => void;
   users: User[];
@@ -154,7 +157,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   // Categories
-  const [categories] = useState<ProductCategory[]>(() => {
+  const [categories, setCategories] = useState<ProductCategory[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
       return saved ? JSON.parse(saved) : INITIAL_CATEGORIES;
@@ -243,6 +246,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [products]);
 
   useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+  }, [categories]);
+
+  useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
   }, [users]);
 
@@ -278,23 +285,115 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [currentUser]);
 
-  // Live Sync with Supabase on mount
+  // Helper: fetch authenticated internal data when a real Supabase Auth session is active
+  const fetchAuthenticatedSupabaseData = async () => {
+    const client = getSupabaseClient();
+    if (!client) return;
+
+    try {
+      const { data: sessionData } = await client.auth.getSession();
+      if (!sessionData.session?.user) return;
+
+      const [salesRes, movRes, logsRes] = await Promise.all([
+        client
+          .from('sales')
+          .select('*, sale_items(*, products(name, unit)), profiles(full_name, role)')
+          .order('created_at', { ascending: false })
+          .limit(200),
+        client
+          .from('stock_movements')
+          .select('*, products(name), profiles(full_name)')
+          .order('created_at', { ascending: false })
+          .limit(200),
+        client
+          .from('activity_logs')
+          .select('*, profiles(full_name, role)')
+          .order('created_at', { ascending: false })
+          .limit(200),
+      ]);
+
+      if (!salesRes.error && salesRes.data && salesRes.data.length > 0) {
+        const mappedSales: Sale[] = salesRes.data.map((s: any) => ({
+          id: s.id,
+          invoice_no: s.invoice_no,
+          customer_name: s.customer_name || 'Pelanggan Umum',
+          total_amount: Number(s.total_amount),
+          payment_method: (s.payment_method || 'Tunai') as PaymentMethod,
+          status: (s.status || 'completed') as Sale['status'],
+          created_by_id: s.created_by || '',
+          created_by_name: s.profiles?.full_name || 'Staf Tisoffindo',
+          created_by_role: (s.profiles?.role === 'admin' ? 'admin' : 'petugas') as UserRole,
+          created_at: s.created_at || new Date().toISOString(),
+          cancellation_reason: s.cancellation_reason || undefined,
+          items: Array.isArray(s.sale_items)
+            ? s.sale_items.map((si: any) => ({
+                id: si.id,
+                product_id: si.product_id,
+                product_name: si.products?.name || 'Produk',
+                unit: si.products?.unit || 'bungkus',
+                quantity: Number(si.quantity),
+                price: Number(si.price),
+                subtotal: Number(si.subtotal),
+              }))
+            : [],
+        }));
+        setSales(mappedSales);
+      }
+
+      if (!movRes.error && movRes.data && movRes.data.length > 0) {
+        const mappedMov: StockMovement[] = movRes.data.map((m: any) => ({
+          id: m.id,
+          product_id: m.product_id,
+          product_name: m.products?.name || 'Produk',
+          type: m.type,
+          quantity: Number(m.quantity),
+          note: m.note || '',
+          created_by_name: m.profiles?.full_name || 'Staf Tisoffindo',
+          created_by_id: m.created_by || '',
+          created_at: m.created_at || new Date().toISOString(),
+        }));
+        setStockMovements(mappedMov);
+      }
+
+      if (!logsRes.error && logsRes.data && logsRes.data.length > 0) {
+        const mappedLogs: ActivityLog[] = logsRes.data.map((l: any) => ({
+          id: l.id,
+          user_id: l.user_id || 'system',
+          user_name: l.profiles
+            ? `${l.profiles.full_name} (${l.profiles.role})`
+            : 'Sistem',
+          action: l.action,
+          detail: typeof l.detail === 'string' ? l.detail : l.detail?.message || JSON.stringify(l.detail || ''),
+          created_at: l.created_at || new Date().toISOString(),
+        }));
+        setActivityLogs(mappedLogs);
+      }
+    } catch (err) {
+      console.warn('Authenticated Supabase sync skipped:', err);
+    }
+  };
+
+  // Live Sync with Supabase on mount + Realtime subscription
   useEffect(() => {
+    const client = getSupabaseClient();
+    if (!client) return;
+
     const fetchLiveSupabaseData = async () => {
-      const client = getSupabaseClient();
-      if (!client) return;
-
       try {
-        // 1. Fetch Company Profile
-        const { data: cpData, error: cpErr } = await client
-          .from('company_profile')
-          .select('*')
-          .limit(1)
-          .maybeSingle();
+        const [cpRes, catRes, prodRes, testiRes, galRes] = await Promise.all([
+          client.from('company_profile').select('*').limit(1).maybeSingle(),
+          client.from('product_categories').select('*').order('created_at', { ascending: true }),
+          client.from('products').select('*, product_categories(name)').order('name', { ascending: true }),
+          client.from('testimonials').select('*').order('created_at', { ascending: false }),
+          client.from('gallery').select('*').order('created_at', { ascending: false }),
+        ]);
 
-        if (!cpErr && cpData) {
+        // 1. Sync Company Profile
+        if (!cpRes.error && cpRes.data) {
+          const cpData = cpRes.data;
           setCompanyProfile((prev) => ({
             ...prev,
+            id: cpData.id || prev.id,
             business_name: cpData.business_name || prev.business_name,
             address: cpData.address || prev.address,
             phone: cpData.phone || prev.phone,
@@ -308,21 +407,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }));
         }
 
-        // 2. Fetch Products
-        const { data: prodData, error: prodErr } = await client
-          .from('products')
-          .select('*, product_categories(name)')
-          .order('name', { ascending: true });
+        // 2. Sync Product Categories
+        if (!catRes.error && catRes.data && catRes.data.length > 0) {
+          setCategories(
+            catRes.data.map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              slug: c.slug,
+            }))
+          );
+        }
 
-        if (!prodErr && prodData && prodData.length > 0) {
-          const mapped: Product[] = prodData.map((item: any) => ({
+        // 3. Sync Products
+        if (!prodRes.error && prodRes.data && prodRes.data.length > 0) {
+          const mapped: Product[] = prodRes.data.map((item: any) => ({
             id: item.id,
             category_id: item.category_id || '',
             category_name: item.product_categories?.name || 'Umum',
             name: item.name,
             description: item.description || '',
             price: Number(item.price),
-            unit: (item.unit || 'bungkus') as any,
+            unit: (item.unit || 'bungkus') as Product['unit'],
             image_url: resolveProductImageUrl(item.image_url, item.name, item.product_categories?.name),
             stock_qty: Number(item.stock_qty),
             min_stock: Number(item.min_stock),
@@ -332,15 +437,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setProducts(mapped);
         }
 
-        // 3. Fetch Testimonials
-        const { data: testiData, error: testiErr } = await client
-          .from('testimonials')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (!testiErr && testiData && testiData.length > 0) {
+        // 4. Sync Testimonials
+        if (!testiRes.error && testiRes.data && testiRes.data.length > 0) {
           setTestimonials(
-            testiData.map((t: any) => ({
+            testiRes.data.map((t: any) => ({
               id: t.id,
               customer_name: t.customer_name,
               content: t.content,
@@ -351,15 +451,52 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             }))
           );
         }
+
+        // 5. Sync Gallery (only overwrite demo gallery when Supabase has gallery rows)
+        if (!galRes.error && galRes.data && galRes.data.length > 0) {
+          setGallery(
+            galRes.data.map((g: any) => ({
+              id: g.id,
+              image_url: g.image_url,
+              caption: g.caption || '',
+              created_at: g.created_at || new Date().toISOString(),
+            }))
+          );
+        }
       } catch (err) {
         console.warn('Supabase fetch failed silently, fallback to local storage:', err);
       }
     };
 
     fetchLiveSupabaseData();
+    fetchAuthenticatedSupabaseData();
+
+    // Realtime subscription for live updates from Supabase
+    const channel = client
+      .channel('tisoffindo-live-sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
+        fetchLiveSupabaseData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'company_profile' }, () => {
+        fetchLiveSupabaseData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'product_categories' }, () => {
+        fetchLiveSupabaseData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'testimonials' }, () => {
+        fetchLiveSupabaseData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, () => {
+        fetchLiveSupabaseData();
+      })
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
   }, []);
 
-  // Log activity helper
+  // Log activity helper (+ background Supabase audit log if authenticated)
   const logActivity = (action: string, detail: string) => {
     const newLog: ActivityLog = {
       id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
@@ -370,11 +507,70 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       created_at: new Date().toISOString(),
     };
     setActivityLogs((prev) => [newLog, ...prev]);
+
+    const client = getSupabaseClient();
+    if (client) {
+      client.auth.getSession().then(({ data }) => {
+        const authUid = data.session?.user?.id;
+        if (authUid) {
+          client
+            .from('activity_logs')
+            .insert({ user_id: authUid, action, detail: { message: detail } })
+            .then(() => {});
+        }
+      });
+    }
   };
 
-  // Auth: Login
-  const login = (email: string): boolean => {
-    const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  // Auth: Login (Supabase Auth first when password provided, fallback to local demo users)
+  const login = async (email: string, password?: string): Promise<boolean> => {
+    const cleanEmail = email.trim().toLowerCase();
+    const client = getSupabaseClient();
+
+    if (client && password) {
+      try {
+        const { data, error } = await client.auth.signInWithPassword({
+          email: cleanEmail,
+          password,
+        });
+        if (!error && data.user) {
+          const { data: profile } = await client
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .maybeSingle();
+
+          if (profile && profile.is_active === false) {
+            await client.auth.signOut();
+            alert('Akun ini telah dinonaktifkan oleh Admin. Silakan hubungi pengelola.');
+            return false;
+          }
+
+          const authedUser: User = {
+            id: data.user.id,
+            email: data.user.email || cleanEmail,
+            full_name:
+              profile?.full_name ||
+              data.user.user_metadata?.full_name ||
+              cleanEmail.split('@')[0],
+            role: profile?.role === 'admin' ? 'admin' : 'petugas',
+            phone: profile?.phone || '',
+            is_active: true,
+            created_at: profile?.created_at || data.user.created_at || new Date().toISOString(),
+          };
+
+          setCurrentUser(authedUser);
+          setCurrentView('dashboard');
+          logActivity('LOGIN', `User ${authedUser.full_name} (${authedUser.role}) masuk via Supabase Auth`);
+          await fetchAuthenticatedSupabaseData();
+          return true;
+        }
+      } catch {
+        // Fallback to local users below
+      }
+    }
+
+    const found = users.find((u) => u.email.toLowerCase() === cleanEmail);
     if (found) {
       if (!found.is_active) {
         alert('Akun ini telah dinonaktifkan oleh Admin. Silakan hubungi pengelola.');
@@ -403,6 +599,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (currentUser) {
       logActivity('LOGOUT', `User ${currentUser.full_name} keluar`);
     }
+    getSupabaseClient()?.auth.signOut().catch(() => {});
     setCurrentUser(null);
     setCurrentView('company_profile');
     try {
@@ -413,19 +610,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const resolveSupabaseCategoryId = (categoryId?: string, categoryName?: string): string | null => {
+    if (isUuid(categoryId)) return categoryId!;
+    const matched = categories.find(
+      (c) =>
+        c.id === categoryId ||
+        (categoryName && c.name.toLowerCase().trim() === categoryName.toLowerCase().trim())
+    );
+    return matched && isUuid(matched.id) ? matched.id : null;
+  };
+
   // Product Management (Admin)
   const addProduct = (data: Omit<Product, 'id' | 'created_at'>) => {
     const cat = categories.find((c) => c.id === data.category_id);
+    const tempId = `prod-${Date.now()}`;
     const newProduct: Product = {
       ...data,
-      id: `prod-${Date.now()}`,
+      id: tempId,
       category_name: cat ? cat.name : 'Rambak Sapi',
       created_at: new Date().toISOString(),
     };
     setProducts((prev) => [newProduct, ...prev]);
     logActivity('TAMBAH_PRODUK', `Menambahkan produk baru: ${newProduct.name}`);
 
-    // If initial stock > 0, log stock movement
     if (data.stock_qty > 0 && currentUser) {
       const movement: StockMovement = {
         id: `mov-${Date.now()}`,
@@ -440,21 +647,81 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
       setStockMovements((prev) => [movement, ...prev]);
     }
+
+    const client = getSupabaseClient();
+    if (client) {
+      client.auth.getSession().then(async ({ data: sessionData }) => {
+        const authUid = sessionData.session?.user?.id;
+        if (!authUid) return;
+        const dbCategoryId = resolveSupabaseCategoryId(data.category_id, cat?.name);
+        const { data: inserted } = await client
+          .from('products')
+          .insert({
+            category_id: dbCategoryId,
+            name: data.name,
+            description: data.description,
+            price: data.price,
+            unit: data.unit,
+            image_url: data.image_url,
+            stock_qty: data.stock_qty,
+            min_stock: data.min_stock,
+            is_active: data.is_active,
+          })
+          .select('id, created_at')
+          .maybeSingle();
+
+        if (inserted?.id) {
+          setProducts((prev) =>
+            prev.map((p) => (p.id === tempId ? { ...p, id: inserted.id, created_at: inserted.created_at } : p))
+          );
+          if (data.stock_qty > 0) {
+            await client.from('stock_movements').insert({
+              product_id: inserted.id,
+              type: 'in',
+              quantity: data.stock_qty,
+              note: 'Stok awal produk baru',
+              created_by: authUid,
+            });
+          }
+        }
+      });
+    }
   };
 
   const updateProduct = (id: string, data: Partial<Product>) => {
+    const updatedCat = data.category_id
+      ? categories.find((c) => c.id === data.category_id)?.name
+      : undefined;
+
     setProducts((prev) =>
       prev.map((p) => {
         if (p.id === id) {
-          const updatedCat = data.category_id
-            ? categories.find((c) => c.id === data.category_id)?.name
-            : p.category_name;
           return { ...p, ...data, category_name: updatedCat || p.category_name };
         }
         return p;
       })
     );
     logActivity('UBAH_PRODUK', `Memperbarui data produk ID: ${id}`);
+
+    const client = getSupabaseClient();
+    if (client && isUuid(id)) {
+      client.auth.getSession().then(async ({ data: sessionData }) => {
+        if (!sessionData.session?.user) return;
+        const payload: Record<string, unknown> = {};
+        if (data.name !== undefined) payload.name = data.name;
+        if (data.description !== undefined) payload.description = data.description;
+        if (data.price !== undefined) payload.price = data.price;
+        if (data.unit !== undefined) payload.unit = data.unit;
+        if (data.image_url !== undefined) payload.image_url = data.image_url;
+        if (data.stock_qty !== undefined) payload.stock_qty = data.stock_qty;
+        if (data.min_stock !== undefined) payload.min_stock = data.min_stock;
+        if (data.is_active !== undefined) payload.is_active = data.is_active;
+        if (data.category_id !== undefined) {
+          payload.category_id = resolveSupabaseCategoryId(data.category_id, updatedCat);
+        }
+        await client.from('products').update(payload).eq('id', id);
+      });
+    }
   };
 
   const deleteProduct = (id: string) => {
@@ -462,6 +729,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (target) {
       setProducts((prev) => prev.filter((p) => p.id !== id));
       logActivity('HAPUS_PRODUK', `Menghapus produk: ${target.name}`);
+
+      const client = getSupabaseClient();
+      if (client && isUuid(id)) {
+        client.auth.getSession().then(async ({ data: sessionData }) => {
+          if (!sessionData.session?.user) return;
+          await client.from('products').delete().eq('id', id);
+        });
+      }
     }
   };
 
@@ -475,8 +750,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const prod = products.find((p) => p.id === productId);
     if (!prod || !currentUser) return;
 
-    // Calculate new stock
-    const qtyChange = type === 'in' ? Math.abs(quantity) : quantity; // adjustment can be positive or negative
+    const qtyChange = type === 'in' ? Math.abs(quantity) : quantity;
     const newStock = Math.max(0, prod.stock_qty + qtyChange);
 
     setProducts((prev) =>
@@ -500,6 +774,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       type === 'in' ? 'STOK_MASUK' : 'PENYESUAIAN_STOK',
       `${type === 'in' ? 'Stok masuk +' : 'Penyesuaian '}${qtyChange} ${prod.unit} pada ${prod.name} (${note})`
     );
+
+    const client = getSupabaseClient();
+    if (client && isUuid(productId)) {
+      client.auth.getSession().then(async ({ data: sessionData }) => {
+        const authUid = sessionData.session?.user?.id;
+        if (!authUid) return;
+        await Promise.all([
+          client.from('products').update({ stock_qty: newStock }).eq('id', productId),
+          client.from('stock_movements').insert({
+            product_id: productId,
+            type,
+            quantity: qtyChange,
+            note,
+            created_by: authUid,
+          }),
+        ]);
+      });
+    }
   };
 
   // Sales Transaction (POS) - Accessible to both Admin & Petugas
@@ -561,11 +853,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // Generate Invoice Number: INV-YYYYMMDD-COUNT
     const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const todaySalesCount = sales.filter((s) => s.created_at.startsWith(new Date().toISOString().slice(0, 10))).length + 1;
+    const todaySalesCount =
+      sales.filter((s) => s.created_at.startsWith(new Date().toISOString().slice(0, 10))).length + 1;
     const invoiceNo = `INV-${todayStr}-${String(todaySalesCount).padStart(3, '0')}`;
 
+    const tempSaleId = `sale-${Date.now()}`;
     const newSale: Sale = {
-      id: `sale-${Date.now()}`,
+      id: tempSaleId,
       invoice_no: invoiceNo,
       customer_name: customerName?.trim() || 'Pelanggan Umum',
       total_amount: grandTotal,
@@ -580,18 +874,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       items: saleItems,
     };
 
-    // Deduct stock for each product
+    const nextStocks = new Map<string, number>();
     setProducts((prev) =>
       prev.map((p) => {
         const bought = itemsList.find((i) => i.productId === p.id);
         if (bought) {
-          return { ...p, stock_qty: Math.max(0, p.stock_qty - bought.quantity) };
+          const updatedStock = Math.max(0, p.stock_qty - bought.quantity);
+          nextStocks.set(p.id, updatedStock);
+          return { ...p, stock_qty: updatedStock };
         }
         return p;
       })
     );
 
-    // Record stock movements for audit
     const newMovements: StockMovement[] = saleItems.map((si) => ({
       id: `mov-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
       product_id: si.product_id,
@@ -613,6 +908,57 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       `Penjualan ${invoiceNo} berhasil dicatat senilai Rp ${grandTotal.toLocaleString('id-ID')} (${newSale.customer_name})`
     );
 
+    const client = getSupabaseClient();
+    if (client && saleItems.every((si) => isUuid(si.product_id))) {
+      client.auth.getSession().then(async ({ data: sessionData }) => {
+        const authUid = sessionData.session?.user?.id;
+        if (!authUid) return;
+
+        const { data: insertedSale } = await client
+          .from('sales')
+          .insert({
+            invoice_no: invoiceNo,
+            customer_name: newSale.customer_name,
+            total_amount: grandTotal,
+            payment_method: paymentMethod,
+            status: 'completed',
+            created_by: authUid,
+          })
+          .select('id')
+          .maybeSingle();
+
+        if (insertedSale?.id) {
+          setSales((prev) =>
+            prev.map((s) => (s.id === tempSaleId ? { ...s, id: insertedSale.id } : s))
+          );
+
+          await Promise.all([
+            client.from('sale_items').insert(
+              saleItems.map((si) => ({
+                sale_id: insertedSale.id,
+                product_id: si.product_id,
+                quantity: si.quantity,
+                price: si.price,
+                subtotal: si.subtotal,
+              }))
+            ),
+            client.from('stock_movements').insert(
+              saleItems.map((si) => ({
+                product_id: si.product_id,
+                type: 'out',
+                quantity: si.quantity,
+                note: `Otomatis dari penjualan ${invoiceNo}`,
+                created_by: authUid,
+              }))
+            ),
+            ...Array.from(nextStocks.entries()).map(([prodId, qty]) =>
+              client.from('products').update({ stock_qty: qty }).eq('id', prodId)
+            ),
+          ]);
+        }
+      });
+    }
+
     return { success: true, sale: newSale };
   };
 
@@ -621,18 +967,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const sale = sales.find((s) => s.id === saleId);
     if (!sale || sale.status === 'cancelled' || !currentUser) return false;
 
-    // Restore stock
+    const restoredStocks = new Map<string, number>();
     setProducts((prev) =>
       prev.map((p) => {
         const item = sale.items.find((si) => si.product_id === p.id);
         if (item) {
-          return { ...p, stock_qty: p.stock_qty + item.quantity };
+          const restored = p.stock_qty + item.quantity;
+          restoredStocks.set(p.id, restored);
+          return { ...p, stock_qty: restored };
         }
         return p;
       })
     );
 
-    // Record restitution movement
     const restoreMovements: StockMovement[] = sale.items.map((si) => ({
       id: `mov-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
       product_id: si.product_id,
@@ -647,7 +994,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setStockMovements((prev) => [...restoreMovements, ...prev]);
 
-    // Mark sale as cancelled
     setSales((prev) =>
       prev.map((s) =>
         s.id === saleId
@@ -664,6 +1010,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       'BATALKAN_TRANSAKSI',
       `Pembatalan transaksi ${sale.invoice_no} oleh ${currentUser.full_name}. Alasan: ${reason}`
     );
+
+    const client = getSupabaseClient();
+    if (client && isUuid(saleId)) {
+      client.auth.getSession().then(async ({ data: sessionData }) => {
+        const authUid = sessionData.session?.user?.id;
+        if (!authUid) return;
+        await Promise.all([
+          client
+            .from('sales')
+            .update({ status: 'cancelled', cancellation_reason: reason })
+            .eq('id', saleId),
+          client.from('stock_movements').insert(
+            sale.items
+              .filter((si) => isUuid(si.product_id))
+              .map((si) => ({
+                product_id: si.product_id,
+                type: 'in',
+                quantity: si.quantity,
+                note: `Pengembalian stok pembatalan transaksi ${sale.invoice_no}: ${reason}`,
+                created_by: authUid,
+              }))
+          ),
+          ...Array.from(restoredStocks.entries())
+            .filter(([prodId]) => isUuid(prodId))
+            .map(([prodId, qty]) =>
+              client.from('products').update({ stock_qty: qty }).eq('id', prodId)
+            ),
+        ]);
+      });
+    }
 
     return true;
   };
@@ -682,6 +1058,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateUser = (id: string, userData: Partial<User>) => {
     setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...userData } : u)));
     logActivity('UBAH_USER', `Memperbarui data user ID: ${id}`);
+
+    const client = getSupabaseClient();
+    if (client && isUuid(id)) {
+      client.auth.getSession().then(async ({ data: sessionData }) => {
+        if (!sessionData.session?.user) return;
+        const payload: Record<string, unknown> = {};
+        if (userData.full_name !== undefined) payload.full_name = userData.full_name;
+        if (userData.role !== undefined) payload.role = userData.role;
+        if (userData.phone !== undefined) payload.phone = userData.phone;
+        if (userData.is_active !== undefined) payload.is_active = userData.is_active;
+        await client.from('profiles').update(payload).eq('id', id);
+      });
+    }
   };
 
   const toggleUserStatus = (id: string) => {
@@ -693,6 +1082,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             'STATUS_USER',
             `Mengubah status user ${u.full_name} menjadi ${nextState ? 'Aktif' : 'Nonaktif'}`
           );
+          const client = getSupabaseClient();
+          if (client && isUuid(id)) {
+            client.auth.getSession().then(async ({ data: sessionData }) => {
+              if (!sessionData.session?.user) return;
+              await client.from('profiles').update({ is_active: nextState }).eq('id', id);
+            });
+          }
           return { ...u, is_active: nextState };
         }
         return u;
@@ -705,37 +1101,88 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Company Profile Handlers (FR-Real-Data)
   const updateCompanyProfile = (data: Partial<CompanyProfile>) => {
+    const nextTimestamp = new Date().toISOString();
     setCompanyProfile((prev) => {
-      const updated = { ...prev, ...data, updated_at: new Date().toISOString() };
+      const updated = { ...prev, ...data, updated_at: nextTimestamp };
       logActivity(
         'UPDATE_PROFIL_USAHA',
         `Memperbarui profil usaha: ${data.business_name || prev.business_name}`
       );
+
+      const client = getSupabaseClient();
+      if (client && isUuid(updated.id)) {
+        client.auth.getSession().then(async ({ data: sessionData }) => {
+          if (!sessionData.session?.user) return;
+          await client
+            .from('company_profile')
+            .update({
+              business_name: updated.business_name,
+              address: updated.address,
+              phone: updated.phone,
+              operating_hours: updated.operating_hours,
+              gmaps_url: updated.gmaps_url,
+              gmaps_embed_lat: updated.gmaps_embed_lat,
+              gmaps_embed_lng: updated.gmaps_embed_lng,
+              rating: updated.rating,
+              review_count: updated.review_count,
+              updated_at: nextTimestamp,
+            })
+            .eq('id', updated.id);
+        });
+      }
+
       return updated;
     });
   };
 
   // Gallery Handlers (FR-Real-Data)
   const addGalleryItem = (item: Omit<GalleryItem, 'id' | 'created_at'>) => {
+    const tempId = `gal-${Date.now()}`;
     const newItem: GalleryItem = {
-      id: `gal-${Date.now()}`,
+      id: tempId,
       image_url: item.image_url,
       caption: item.caption,
       created_at: new Date().toISOString(),
     };
     setGallery((prev) => [newItem, ...prev]);
     logActivity('TAMBAH_FOTO_GALERI', `Menambahkan foto galeri: ${item.caption || 'Foto baru'}`);
+
+    const client = getSupabaseClient();
+    if (client) {
+      client.auth.getSession().then(async ({ data: sessionData }) => {
+        if (!sessionData.session?.user) return;
+        const { data: inserted } = await client
+          .from('gallery')
+          .insert({ image_url: item.image_url, caption: item.caption })
+          .select('id, created_at')
+          .maybeSingle();
+        if (inserted?.id) {
+          setGallery((prev) =>
+            prev.map((g) => (g.id === tempId ? { ...g, id: inserted.id, created_at: inserted.created_at } : g))
+          );
+        }
+      });
+    }
   };
 
   const deleteGalleryItem = (id: string) => {
     setGallery((prev) => prev.filter((g) => g.id !== id));
     logActivity('HAPUS_FOTO_GALERI', `Menghapus foto galeri ID: ${id}`);
+
+    const client = getSupabaseClient();
+    if (client && isUuid(id)) {
+      client.auth.getSession().then(async ({ data: sessionData }) => {
+        if (!sessionData.session?.user) return;
+        await client.from('gallery').delete().eq('id', id);
+      });
+    }
   };
 
   // Testimonial Handlers (FR-Real-Data)
   const addTestimonial = (data: Omit<Testimonial, 'id' | 'created_at'>) => {
+    const tempId = `testi-${Date.now()}`;
     const newTesti: Testimonial = {
-      id: `testi-${Date.now()}`,
+      id: tempId,
       customer_name: data.customer_name,
       content: data.content,
       rating: data.rating,
@@ -745,6 +1192,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setTestimonials((prev) => [newTesti, ...prev]);
     logActivity('TAMBAH_TESTIMONI', `Menambahkan ulasan dari ${data.customer_name}`);
+
+    const client = getSupabaseClient();
+    if (client) {
+      client.auth.getSession().then(async ({ data: sessionData }) => {
+        if (!sessionData.session?.user) return;
+        const { data: inserted } = await client
+          .from('testimonials')
+          .insert({
+            customer_name: data.customer_name,
+            content: data.content,
+            rating: data.rating,
+            source: data.source || 'Google Maps',
+            is_featured: data.is_featured ?? true,
+          })
+          .select('id, created_at')
+          .maybeSingle();
+        if (inserted?.id) {
+          setTestimonials((prev) =>
+            prev.map((t) => (t.id === tempId ? { ...t, id: inserted.id, created_at: inserted.created_at } : t))
+          );
+        }
+      });
+    }
   };
 
   const updateTestimonial = (id: string, data: Partial<Testimonial>) => {
@@ -752,22 +1222,52 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       prev.map((t) => (t.id === id ? { ...t, ...data } : t))
     );
     logActivity('UPDATE_TESTIMONI', `Memperbarui ulasan ID: ${id}`);
+
+    const client = getSupabaseClient();
+    if (client && isUuid(id)) {
+      client.auth.getSession().then(async ({ data: sessionData }) => {
+        if (!sessionData.session?.user) return;
+        await client.from('testimonials').update(data).eq('id', id);
+      });
+    }
   };
 
   const deleteTestimonial = (id: string) => {
     setTestimonials((prev) => prev.filter((t) => t.id !== id));
     logActivity('HAPUS_TESTIMONI', `Menghapus ulasan ID: ${id}`);
+
+    const client = getSupabaseClient();
+    if (client && isUuid(id)) {
+      client.auth.getSession().then(async ({ data: sessionData }) => {
+        if (!sessionData.session?.user) return;
+        await client.from('testimonials').delete().eq('id', id);
+      });
+    }
   };
 
   const toggleTestimonialFeatured = (id: string) => {
     setTestimonials((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, is_featured: !t.is_featured } : t))
+      prev.map((t) => {
+        if (t.id === id) {
+          const nextFeatured = !t.is_featured;
+          const client = getSupabaseClient();
+          if (client && isUuid(id)) {
+            client.auth.getSession().then(async ({ data: sessionData }) => {
+              if (!sessionData.session?.user) return;
+              await client.from('testimonials').update({ is_featured: nextFeatured }).eq('id', id);
+            });
+          }
+          return { ...t, is_featured: nextFeatured };
+        }
+        return t;
+      })
     );
   };
 
   // Reset demo data helper
   const resetToInitialData = () => {
     setProducts(INITIAL_PRODUCTS);
+    setCategories(INITIAL_CATEGORIES);
     setUsers(INITIAL_USERS);
     setSales(INITIAL_SALES);
     setStockMovements(INITIAL_STOCK_MOVEMENTS);

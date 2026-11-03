@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ShoppingBag, Lock, Mail, ArrowLeft, Shield, UserCheck, KeyRound, AlertCircle, Info } from 'lucide-react';
 import { APP_ASSETS } from '../../assets/images';
+import { getSupabaseClient } from '../../utils/supabaseClient';
 
 export const LoginView: React.FC = () => {
   const { login, quickLogin, setCurrentView, users } = useApp();
@@ -12,7 +13,7 @@ export const LoginView: React.FC = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [resetSuccess, setResetSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
@@ -21,7 +22,7 @@ export const LoginView: React.FC = () => {
       return;
     }
 
-    const success = login(email);
+    const success = await login(email, password);
     if (!success) {
       setErrorMsg('Email tidak terdaftar atau akun dinonaktifkan. Silakan gunakan tombol demo di bawah.');
     }
@@ -30,6 +31,9 @@ export const LoginView: React.FC = () => {
   const handleResetPassword = (e: React.FormEvent) => {
     e.preventDefault();
     if (!resetEmail) return;
+    getSupabaseClient()
+      ?.auth.resetPasswordForEmail(resetEmail.trim(), { redirectTo: window.location.origin })
+      .catch(() => {});
     setResetSuccess(true);
     setTimeout(() => {
       setResetModalOpen(false);

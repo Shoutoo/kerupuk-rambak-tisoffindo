@@ -7,7 +7,7 @@ import { resolveProductImageUrl, getProductFallbackImage } from '../../utils/pro
 import { staggerContainer, staggerItem, scaleUp, fadeInUp, viewportOnce } from '../../utils/motionVariants';
 
 export const CatalogSection: React.FC = () => {
-  const { products, categories } = useApp();
+  const { products, categories, companyProfile } = useApp();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -29,7 +29,9 @@ export const CatalogSection: React.FC = () => {
     const message = encodeURIComponent(
       `Halo Tisoffindo, saya ingin memesan:\n\n*Produk:* ${product.name}\n*Harga:* Rp ${product.price.toLocaleString('id-ID')} / ${product.unit}\n\nMohon info ketersediaan dan ongkos kirim ke alamat saya. Terima kasih!`
     );
-    window.open(`https://wa.me/6281234567890?text=${message}`, '_blank');
+    const cleanPhone = (companyProfile?.phone || '0812-3456-7890').replace(/[^0-9]/g, '');
+    const waNumber = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone;
+    window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
   };
 
   return (
